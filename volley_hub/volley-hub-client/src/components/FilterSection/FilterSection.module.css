@@ -1,0 +1,145 @@
+.filterSection {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.filterGroup {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.filterGroup:last-child {
+    border-bottom: none;
+}
+
+.filterHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.filterHeader:hover {
+    background: var(--bg-tertiary);
+}
+
+.filterTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.filterContent {
+    padding: 1rem;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.autocompleteWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.suggestionsList {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.suggestionItem {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    color: var(--text-primary);
+}
+
+.suggestionItem:hover {
+    background: var(--bg-tertiary);
+}
+
+.dateInput, .timeInput, .priceInput {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--input-border);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    outline: none;
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.dateInput:focus, .timeInput:focus, .priceInput:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.timeRange, .priceRange {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.timeSeparator, .priceSeparator {
+    color: var(--text-tertiary);
+    font-weight: 600;
+}
+
+.levelButtons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filterActions {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    justify-content: flex-end;
+}
+
+.addressInput {
+    margin-top: 0.5rem;
+}
+
+.addressError {
+    font-size: 0.75rem;
+    color: #EF4444;
+    margin-top: 0.25rem;
+    display: block;
+}

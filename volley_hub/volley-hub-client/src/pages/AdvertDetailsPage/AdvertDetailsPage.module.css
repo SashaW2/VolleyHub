@@ -1,0 +1,410 @@
+.detailsPage {
+    min-height: calc(100vh - 200px);
+    padding: 2rem;
+}
+
+[data-theme="light"] .detailsPage {
+    background: #F8FAFC;
+}
+
+[data-theme="dark"] .detailsPage {
+    background: #121826;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.backButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+[data-theme="light"] .backButton {
+    color: #667eea;
+}
+
+[data-theme="dark"] .backButton {
+    color: #667eea;
+}
+
+.backButton:hover {
+    color: #5a67d8;
+    transform: translateX(-4px);
+}
+
+.card {
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+[data-theme="light"] .card {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .card {
+    background: #1A2133;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.levelBadge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.creatorBadge {
+    background: #10B981;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    color: white;
+    font-size: 0.75rem;
+}
+
+.content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sectionLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+[data-theme="light"] .sectionLabel {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .sectionLabel {
+    color: #6B7280;
+}
+
+.sectionValue {
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+[data-theme="light"] .sectionValue {
+    color: #0F172A;
+}
+
+[data-theme="dark"] .sectionValue {
+    color: #F0F3FF;
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.mapButton {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+    width: fit-content;
+}
+
+.mapButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.mapContainer {
+    margin-top: 0.5rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.map {
+    height: 300px;
+    width: 100%;
+}
+
+.mapLoading {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border-radius: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.closeMapButton {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.75rem 1rem;
+    border-radius: 0 0 0.75rem 0.75rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: center;
+}
+
+.closeMapButton:hover {
+    background: var(--border-color);
+}
+
+.footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid;
+    background: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+[data-theme="light"] .footer {
+    border-top-color: #E2E8F0;
+}
+
+[data-theme="dark"] .footer {
+    border-top-color: #2A3448;
+}
+
+.creatorActions {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.creatorActions button {
+    flex: 1;
+}
+
+.subscribeButton {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.subscribeButton.subscribe {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.subscribeButton.subscribe:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.subscribeButton.unsubscribe {
+    background: #EF4444;
+    color: white;
+}
+
+.subscribeButton.unsubscribe:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.subscribeButton.waiting {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    opacity: 0.8;
+}
+
+.subscribeButton.waiting:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    opacity: 1;
+}
+
+.subscribeButton.unsubscribeWaiting {
+    background: #EF4444;
+    color: white;
+    opacity: 0.7;
+}
+
+.subscribeButton.unsubscribeWaiting:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    opacity: 1;
+}
+
+.subscribeButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 4rem;
+    font-size: 1.125rem;
+}
+
+[data-theme="light"] .loading,
+[data-theme="light"] .error {
+    color: #64748B;
+}
+
+[data-theme="dark"] .loading,
+[data-theme="dark"] .error {
+    color: #A0A8C8;
+}
+
+.error {
+    color: #EF4444;
+}
+
+[data-theme="dark"] .error {
+    color: #F87171;
+}
+
+@media (max-width: 640px) {
+    .detailsPage {
+        padding: 1rem;
+    }
+
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .creatorActions {
+        flex-direction: row;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .map {
+        height: 250px;
+    }
+
+    .mapLoading {
+        height: 250px;
+    }
+
+    .footer {
+        gap: 0.75rem;
+    }
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.buttonGroup button {
+    flex: 1;
+}
+
+.creatorInfo {
+    background: var(--bg-tertiary);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-top: 1rem;
+}
+
+.creatorInfo h3 {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.creatorInfo p {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.closeCreatorBtn {
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--border-color);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.subscribeButton {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.subscribeButton {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.subscribeButton.unsubscribe {
+    background: #EF4444;
+    color: white;
+}
+
+.subscribeButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .buttonGroup {
+        flex-direction: column;
+    }
+
+    .buttonGroup button {
+        width: 100%;
+    }
+}

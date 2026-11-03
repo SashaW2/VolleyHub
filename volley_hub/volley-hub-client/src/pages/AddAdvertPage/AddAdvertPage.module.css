@@ -1,0 +1,226 @@
+.addAdvertPage {
+    min-height: calc(100vh - 200px);
+    padding: 2rem;
+}
+
+[data-theme="light"] .addAdvertPage {
+    background: #F8FAFC;
+}
+
+[data-theme="dark"] .addAdvertPage {
+    background: #121826;
+}
+
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.card {
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .card {
+    background: white;
+}
+
+[data-theme="dark"] .card {
+    background: #1A2133;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+[data-theme="light"] .title {
+    color: #0F172A;
+}
+
+[data-theme="dark"] .title {
+    color: #F0F3FF;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.fieldError {
+    font-size: 0.75rem;
+    color: #EF4444;
+    margin-top: -0.25rem;
+}
+
+.row, .timeRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.levelSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+[data-theme="light"] .label {
+    color: #475569;
+}
+
+[data-theme="dark"] .label {
+    color: #A0A8C8;
+}
+
+.levelButtons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.textarea {
+    padding: 0.75rem;
+    border: 2px solid;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+[data-theme="light"] .textarea {
+    border-color: #E2E8F0;
+    background: white;
+    color: #0F172A;
+}
+
+[data-theme="dark"] .textarea {
+    border-color: #2A3448;
+    background: #121826;
+    color: #F0F3FF;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.error {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+[data-theme="light"] .error {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
+[data-theme="dark"] .error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #F87171;
+}
+
+.infoMessage {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    background: #EFF6FF;
+    border-radius: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+[data-theme="dark"] .infoMessage {
+    background: #1E2A4A;
+}
+
+.infoIcon {
+    font-size: 1rem;
+}
+
+input[type="date"],
+input[type="time"] {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+}
+
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="time"] {
+    border-color: #E2E8F0;
+    background: white;
+    color: #0F172A;
+}
+
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"] {
+    border-color: #2A3448;
+    background: #121826;
+    color: #F0F3FF;
+}
+
+input[type="date"]:focus,
+input[type="time"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .addAdvertPage {
+        padding: 1rem;
+    }
+    .row, .timeRow {
+        grid-template-columns: 1fr;
+    }
+    .actions {
+        flex-direction: column;
+    }
+}

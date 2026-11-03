@@ -1,0 +1,56 @@
+.toggleButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 2px solid #E2E8F0;
+    border-radius: 2rem;
+    background: white;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggleButton:hover:not(:disabled) {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.toggleButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+.active:hover:not(:disabled) {
+    background: #5a67d8;
+    border-color: #5a67d8;
+    color: white;
+}
+
+[data-theme="dark"] .toggleButton {
+    background: #1A2133;
+    border-color: #2A3448;
+    color: #A0A8C8;
+}
+
+[data-theme="dark"] .toggleButton:hover:not(:disabled) {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+[data-theme="dark"] .toggleButton.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+[data-theme="dark"] .toggleButton.active:hover:not(:disabled) {
+    background: #5a67d8;
+    border-color: #5a67d8;
+    color: white;
+}

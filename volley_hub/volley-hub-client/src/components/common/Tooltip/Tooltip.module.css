@@ -1,0 +1,114 @@
+.wrapper {
+    display: inline-flex;
+    max-width: 100%;
+}
+
+.tooltip {
+    position: fixed;
+    z-index: 9999;
+    transform: translate(-50%, -100%);
+    background: var(--card-bg, #FFFFFF);
+    color: var(--text-primary, #0F172A);
+    border: 1px solid var(--border-color, #E2E8F0);
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.4;
+    max-width: 260px;
+    width: max-content;
+    box-shadow: 0 4px 14px -4px rgba(102, 126, 234, 0.25);
+    pointer-events: none;
+    animation: tooltipFadeIn 0.15s ease-out;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--card-bg, #FFFFFF);
+    border-right: 1px solid var(--border-color, #E2E8F0);
+    border-bottom: 1px solid var(--border-color, #E2E8F0);
+    transform: rotate(45deg);
+}
+
+.tooltip.top::after {
+    bottom: -6px;
+    left: 50%;
+    margin-left: -5px;
+}
+
+.tooltip.bottom {
+    transform: translate(-50%, 0);
+}
+
+.tooltip.bottom::after {
+    top: -6px;
+    left: 50%;
+    margin-left: -5px;
+    transform: rotate(-135deg);
+}
+
+.tooltip.left {
+    transform: translate(-100%, -50%);
+}
+
+.tooltip.left::after {
+    right: -6px;
+    top: 50%;
+    margin-top: -5px;
+    transform: rotate(-45deg);
+}
+
+.tooltip.right {
+    transform: translate(0, -50%);
+}
+
+.tooltip.right::after {
+    left: -6px;
+    top: 50%;
+    margin-top: -5px;
+    transform: rotate(135deg);
+}
+
+[data-theme="dark"] .tooltip {
+    background: #2A3448;
+    color: #F0F3FF;
+    border-color: #3D4A66;
+    box-shadow: 0 4px 14px -4px rgba(102, 126, 234, 0.3);
+}
+
+[data-theme="dark"] .tooltip::after {
+    background: #2A3448;
+    border-right-color: #3D4A66;
+    border-bottom-color: #3D4A66;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, calc(-100% - 4px));
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -100%);
+    }
+}
+
+.tooltip.bottom {
+    animation: tooltipFadeInBottom 0.15s ease-out;
+}
+
+@keyframes tooltipFadeInBottom {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 4px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}

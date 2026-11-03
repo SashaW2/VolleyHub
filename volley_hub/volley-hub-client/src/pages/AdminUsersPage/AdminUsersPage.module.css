@@ -1,0 +1,234 @@
+.adminUsersPage {
+    min-height: calc(100vh - 200px);
+    background: #F8FAFC;
+    padding: 2rem;
+}
+
+[data-theme="dark"] .adminUsersPage {
+    background: #121826;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 2rem;
+}
+
+[data-theme="dark"] .title {
+    color: #F0F3FF;
+}
+
+.usersGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.userCard {
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .userCard {
+    background: #1A2133;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.userHeader {
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.userAvatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.userName {
+    font-weight: 600;
+    font-size: 1rem;
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.blockedBadge {
+    background: #EF4444;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.userInfo {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.infoRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #475569;
+    font-size: 0.875rem;
+}
+
+[data-theme="dark"] .infoRow {
+    color: #A0A8C8;
+}
+
+.infoRow span {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    flex: 1;
+}
+
+.infoRow svg {
+    flex-shrink: 0;
+}
+
+.userActions {
+    padding: 1rem;
+    border-top: 1px solid #E2E8F0;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+[data-theme="dark"] .userActions {
+    border-top-color: #2A3448;
+}
+
+.userActions button {
+    flex: 1;
+    min-width: 120px;
+}
+
+.loading, .emptyState {
+    text-align: center;
+    padding: 4rem;
+    color: #64748B;
+}
+
+[data-theme="dark"] .loading,
+[data-theme="dark"] .emptyState {
+    color: #A0A8C8;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    width: 500px;
+    max-width: 90%;
+}
+
+[data-theme="dark"] .modalContent {
+    background: #1A2133;
+}
+
+.modalContent h3 {
+    margin-bottom: 1rem;
+    color: #0F172A;
+}
+
+[data-theme="dark"] .modalContent h3 {
+    color: #F0F3FF;
+}
+
+.textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #E2E8F0;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    margin-bottom: 1rem;
+    background: white;
+}
+
+[data-theme="dark"] .textarea {
+    background: #121826;
+    border-color: #2A3448;
+    color: #F0F3FF;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.modalActions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+    .adminUsersPage {
+        padding: 1rem;
+    }
+
+    .usersGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .userActions {
+        flex-direction: column;
+    }
+
+    .userActions button {
+        width: 100%;
+    }
+
+    .userHeader {
+        flex-wrap: wrap;
+    }
+
+    .userName {
+        min-width: auto;
+    }
+
+    .blockedBadge {
+        white-space: nowrap;
+    }
+}

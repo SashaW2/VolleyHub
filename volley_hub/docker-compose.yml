@@ -1,0 +1,57 @@
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: volleyhub_database
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: Admin123!@#
+      MSSQL_PID: Express
+      TZ: Europe/Minsk
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - volleyhub_network
+
+  server:
+    build: ./volley-hub-server
+    container_name: volleyhub_server
+    environment:
+      NODE_ENV: production
+      DB_HOST: database
+      DB_USER: sa
+      DB_PASSWORD: Admin123!@#
+      DB_NAME: VolleyHub
+      DB_PORT: 1433
+      JWT_SECRET: my_secret_key_for_jwt_12345
+      TZ: Europe/Minsk
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+    networks:
+      - volleyhub_network
+    restart: on-failure
+
+  nginx:
+    build: ./nginx
+    container_name: volleyhub_nginx
+    environment:
+      TZ: Europe/Minsk
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./volley-hub-client/build:/usr/share/nginx/html:ro
+    depends_on:
+      - server
+    networks:
+      - volleyhub_network
+
+volumes:
+  sql_data:
+
+networks:
+  volleyhub_network:
+    driver: bridge

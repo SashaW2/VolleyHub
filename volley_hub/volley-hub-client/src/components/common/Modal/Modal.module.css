@@ -1,0 +1,66 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.small { width: 400px; max-width: 90%; }
+.medium { width: 600px; max-width: 90%; }
+.large { width: 800px; max-width: 90%; }
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0F172A;
+    margin: 0;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94A3B8;
+    font-size: 1.25rem;
+    transition: color 0.3s ease;
+}
+
+.closeButton:hover { color: #EF4444; }
+
+.content {
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}

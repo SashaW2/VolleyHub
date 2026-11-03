@@ -1,0 +1,105 @@
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.secondary {
+    background: white;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+}
+
+.secondary:hover:not(:disabled) {
+    background: #F8FAFC;
+    transform: translateY(-1px);
+}
+
+.outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.outline:hover:not(:disabled) {
+    background: #667eea;
+    color: white;
+}
+
+.danger {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+}
+
+.danger:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+}
+
+.small {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.medium {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.large {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.loading {
+    position: relative;
+    cursor: wait;
+}
+
+.spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.content {
+    display: inline-block;
+}

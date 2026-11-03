@@ -1,0 +1,15 @@
+Пользователи:
+	1@mail.ru - Test123!
+	2@mail.ru - Test123!
+	3@mail.ru - Test123!
+	4@mail.ru - Test123!
+	5@mail.ru - Test123!
+	6@mail.ru - Test123!
+	7@mail.ru - Test123!
+	8@mail.ru - Test123!
+	9@mail.ru - Test123!
+	10@mail.ru - Test123!
+	michael@mail.ru - Volley123!
+
+Администратор:
+	admin@mail.ru - @HbиYУОOсюh@h0

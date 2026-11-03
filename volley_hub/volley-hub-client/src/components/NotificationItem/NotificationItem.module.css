@@ -1,0 +1,189 @@
+.notificationItem {
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border-left: 4px solid #E2E8F0;
+}
+
+[data-theme="light"] .notificationItem {
+    background: white;
+}
+
+[data-theme="dark"] .notificationItem {
+    background: #1A2133;
+    border-left-color: #2A3448;
+}
+
+.notificationItem:hover {
+    transform: translateX(4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.notificationItem.unread {
+    border-left-color: #667eea;
+}
+
+[data-theme="light"] .notificationItem.unread {
+    background: #F8FAFC;
+}
+
+[data-theme="dark"] .notificationItem.unread {
+    background: #1E2A4A;
+}
+
+.notificationIcon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.adminIcon {
+    width: 20px;
+    height: 20px;
+    color: #8B5CF6;
+}
+
+.systemIcon {
+    width: 18px;
+    height: 18px;
+    color: #10B981;
+}
+
+.reminderIcon {
+    width: 18px;
+    height: 18px;
+    color: #F59E0B;
+}
+
+.defaultIcon {
+    width: 18px;
+    height: 18px;
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .defaultIcon {
+    color: #64748B;
+}
+
+.notificationContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.adminBadge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+    color: white;
+}
+
+.systemBadge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: #10B981;
+    color: white;
+}
+
+.reminderBadge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: #F59E0B;
+    color: white;
+}
+
+.notificationText {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+[data-theme="light"] .notificationText {
+    color: #0F172A;
+}
+
+[data-theme="dark"] .notificationText {
+    color: #F0F3FF;
+}
+
+.notificationDate {
+    font-size: 0.7rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+[data-theme="light"] .notificationDate {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .notificationDate {
+    color: #64748B;
+}
+
+.deleteButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+[data-theme="light"] .deleteButton {
+    color: #EF4444;
+}
+
+[data-theme="dark"] .deleteButton {
+    color: #F87171;
+}
+
+.deleteButton:hover {
+    background: #FEE2E2;
+}
+
+[data-theme="dark"] .deleteButton:hover {
+    background: #2A3448;
+}
+
+@media (max-width: 640px) {
+    .notificationItem {
+        flex-wrap: wrap;
+    }
+
+    .notificationIcon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .adminIcon, .systemIcon, .reminderIcon, .defaultIcon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .notificationText {
+        font-size: 0.85rem;
+    }
+}

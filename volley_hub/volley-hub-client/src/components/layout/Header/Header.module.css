@@ -1,0 +1,207 @@
+.header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+[data-theme="dark"] .header {
+    background: #1A2133;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.logoImage {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.logoText {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.mobileMenuButton {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #0F172A;
+}
+
+[data-theme="dark"] .mobileMenuButton {
+    color: #F0F3FF;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navLink {
+    color: #475569;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .navLink {
+    color: #A0A8C8;
+}
+
+.navLink:hover {
+    background: #F1F5F9;
+    color: #667eea;
+}
+
+[data-theme="dark"] .navLink:hover {
+    background: #2A3448;
+    color: #667eea;
+}
+
+.authButtons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.loginButton {
+    padding: 0.5rem 1.25rem;
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.loginButton:hover {
+    background: #667eea;
+    color: white;
+}
+
+.registerButton {
+    padding: 0.5rem 1.25rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.registerButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.logoutButton {
+    padding: 0.5rem 1.25rem;
+    background: #EF4444;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.logoutButton:hover {
+    background: #DC2626;
+    transform: translateY(-1px);
+}
+
+.userBlock {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.userEmail {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #475569;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0.4rem 0.75rem;
+    background: #F1F5F9;
+    border-radius: 0.5rem;
+    border: 1px solid #E2E8F0;
+}
+
+[data-theme="dark"] .userEmail {
+    color: #A0A8C8;
+    background: #222B3F;
+    border-color: #2A3448;
+}
+
+@media (max-width: 768px) {
+    .container { padding: 1rem; }
+    .mobileMenuButton { display: block; }
+    .nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        gap: 0.5rem;
+    }
+    [data-theme="dark"] .nav {
+        background: #1A2133;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    .navOpen { display: flex; }
+    .navLink, .loginButton, .registerButton, .logoutButton, .authButtons {
+        width: 100%;
+        text-align: center;
+    }
+    .authButtons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .userBlock {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 0.5rem;
+    }
+    .userEmail {
+        max-width: 100%;
+        text-align: center;
+    }
+}

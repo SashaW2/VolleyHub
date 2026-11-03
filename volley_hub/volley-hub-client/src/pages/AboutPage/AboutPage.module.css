@@ -1,0 +1,108 @@
+.aboutPage {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+[data-theme="light"] .aboutPage {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+[data-theme="dark"] .aboutPage {
+    background: linear-gradient(135deg, #4c51bf 0%, #5a3d7a 100%);
+}
+
+.container {
+    max-width: 500px;
+    width: 100%;
+}
+
+.aboutCard {
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .aboutCard {
+    background: white;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .aboutCard {
+    background: #1A2133;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin: 0 auto 1rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+[data-theme="light"] .title {
+    color: #0F172A;
+}
+
+[data-theme="dark"] .title {
+    color: #F0F3FF;
+}
+
+.description {
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+[data-theme="light"] .description {
+    color: #64748B;
+}
+
+[data-theme="dark"] .description {
+    color: #A0A8C8;
+}
+
+.developer {
+    margin-bottom: 1rem;
+}
+
+.developer h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+[data-theme="light"] .developer h3 {
+    color: #475569;
+}
+
+[data-theme="dark"] .developer h3 {
+    color: #A0A8C8;
+}
+
+.developer p {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #667eea;
+}
+
+.version {
+    font-size: 0.8rem;
+}
+
+[data-theme="light"] .version {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .version {
+    color: #6B7280;
+}

@@ -1,0 +1,97 @@
+.notificationsPage {
+    min-height: calc(100vh - 200px);
+    padding: 2rem;
+}
+
+[data-theme="light"] .notificationsPage {
+    background: #F8FAFC;
+}
+
+[data-theme="dark"] .notificationsPage {
+    background: #121826;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+[data-theme="light"] .title {
+    color: #0F172A;
+}
+
+[data-theme="dark"] .title {
+    color: #F0F3FF;
+}
+
+.icon {
+    width: 28px;
+    height: 28px;
+    color: #667eea;
+}
+
+.markAllButton {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.markAllButton:hover {
+    text-decoration: underline;
+}
+
+.notificationsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 4rem;
+}
+
+[data-theme="light"] .emptyState {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .emptyState {
+    color: #64748B;
+}
+
+.loading {
+    text-align: center;
+    padding: 4rem;
+}
+
+[data-theme="light"] .loading {
+    color: #64748B;
+}
+
+[data-theme="dark"] .loading {
+    color: #A0A8C8;
+}
