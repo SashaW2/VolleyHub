@@ -1,5 +1,5 @@
 const advertRepository = require('../repositories/advertRepository');
-const notificationRepository = require('../repositories/notificationRepository');
+const notificationService = require('./notificationService');
 const locationService = require('./locationService');
 
 class AdvertService {
@@ -169,7 +169,6 @@ class AdvertService {
             throw new Error('Объявление не найдено');
         }
 
-        // Проверка: если меняется дата или время, проверяем 3 часа
         const isChangingDateTime = advertData.date !== undefined || advertData.startTime !== undefined;
 
         if (isChangingDateTime) {
@@ -224,20 +223,14 @@ class AdvertService {
 
         const getTimeFromDB = (timeValue) => {
             if (!timeValue) return null;
-
             const timeStr = String(timeValue);
-
             if (timeValue instanceof Date) {
                 const hours = timeValue.getUTCHours().toString().padStart(2, '0');
                 const minutes = timeValue.getUTCMinutes().toString().padStart(2, '0');
                 return `${hours}:${minutes}`;
             }
-
             const match = timeStr.match(/(\d{2}):(\d{2})/);
-            if (match) {
-                return `${match[1]}:${match[2]}`;
-            }
-
+            if (match) return `${match[1]}:${match[2]}`;
             return null;
         };
 
@@ -245,9 +238,7 @@ class AdvertService {
             if (!timeValue) return null;
             const timeStr = String(timeValue);
             const match = timeStr.match(/(\d{2}):(\d{2})/);
-            if (match) {
-                return `${match[1]}:${match[2]}`;
-            }
+            if (match) return `${match[1]}:${match[2]}`;
             return null;
         };
 
@@ -272,7 +263,6 @@ class AdvertService {
         if (newAddress !== undefined && currentAddress !== newAddress) {
             changes.push(`Адрес: "${currentAddress}" -> "${newAddress}"`);
         }
-
         if (newDate !== undefined && currentDate !== newDate) {
             const oldDateFormatted = new Date(currentDate).toLocaleDateString('ru-RU');
             const newDateFormatted = new Date(newDate).toLocaleDateString('ru-RU');
@@ -280,30 +270,24 @@ class AdvertService {
                 changes.push(`Дата: ${oldDateFormatted} -> ${newDateFormatted}`);
             }
         }
-
         if (newStartTime !== null && currentStartTime !== null && currentStartTime !== newStartTime) {
             changes.push(`Время начала: ${currentStartTime} -> ${newStartTime}`);
         }
-
         if (newEndTime !== null && currentEndTime !== null && currentEndTime !== newEndTime) {
             changes.push(`Время окончания: ${currentEndTime} -> ${newEndTime}`);
         }
-
         if (newCost !== undefined && currentCost !== newCost) {
             changes.push(`Стоимость: ${currentCost} BYN -> ${newCost} BYN`);
         }
-
         if (newPeopleCount !== undefined && currentPeopleCount !== newPeopleCount) {
             changes.push(`Количество участников: ${currentPeopleCount} -> ${newPeopleCount}`);
         }
-
         if (newGameLevel !== undefined && currentGameLevel !== newGameLevel) {
             const levelMap = { 1: 'D1', 2: 'D2', 3: 'D3', 4: 'D4', 5: 'D4+' };
             const oldL = levelMap[currentGameLevel] || currentGameLevel;
             const newL = levelMap[newGameLevel] || newGameLevel;
             changes.push(`Уровень игры: ${oldL} -> ${newL}`);
         }
-
         if (newDescription !== undefined && currentDescription !== newDescription) {
             changes.push(`Описание: изменено`);
         }
@@ -320,12 +304,7 @@ class AdvertService {
                 for (const subscriber of subscribers) {
                     const userId = subscriber.UserId || subscriber.userId;
                     if (userId) {
-                        await notificationRepository.create({
-                            userId: userId,
-                            text: message,
-                            createdDate: new Date(),
-                            notificationType: 'system'
-                        });
+                        await notificationService.sendNotification(userId, message, 'system');
                     }
                 }
 
@@ -341,7 +320,6 @@ class AdvertService {
             const subscribersList = subscribers.map(s => s.UserId || s.userId).filter(uid => uid);
 
             let allUsers = [...new Set([...participantsList, ...subscribersList, advert.userId])];
-
             allUsers = allUsers.filter(uid => uid !== currentUser.id);
 
             const changesList = changes.map((change, i) => `${i + 1}. ${change}`).join('\n');
@@ -351,22 +329,14 @@ class AdvertService {
 
                 if (isAdmin && userId === advert.userId) {
                     message = `[Администратор] Ваше объявление было отредактировано\n\n`;
-                    message += `Адрес: ${advert.address}\n\n`;
-                    message += `Изменения:\n${changesList}\n\n`;
-                    message += `Пожалуйста, проверьте актуальные данные в приложении.`;
                 } else {
                     message = `Объявление было отредактировано\n\n`;
-                    message += `Адрес: ${advert.address}\n\n`;
-                    message += `Изменения:\n${changesList}\n\n`;
-                    message += `Пожалуйста, проверьте актуальные данные в приложении.`;
                 }
+                message += `Адрес: ${advert.address}\n\n`;
+                message += `Изменения:\n${changesList}\n\n`;
+                message += `Пожалуйста, проверьте актуальные данные в приложении.`;
 
-                await notificationRepository.create({
-                    userId: userId,
-                    text: message,
-                    createdDate: new Date(),
-                    notificationType: 'system'
-                });
+                await notificationService.sendNotification(userId, message, 'system');
             }
         }
 
@@ -414,12 +384,7 @@ class AdvertService {
                 }
             }
 
-            await notificationRepository.create({
-                userId: userId,
-                text: message,
-                createdDate: new Date(),
-                notificationType: 'system'
-            });
+            await notificationService.sendNotification(userId, message, 'system');
         }
 
         return await advertRepository.delete(id);
@@ -546,12 +511,7 @@ class AdvertService {
             for (const subscriber of subscribers) {
                 const userId = subscriber.UserId || subscriber.userId;
                 if (userId) {
-                    await notificationRepository.create({
-                        userId: userId,
-                        text: message,
-                        createdDate: new Date(),
-                        notificationType: 'system'
-                    });
+                    await notificationService.sendNotification(userId, message, 'system');
                 }
             }
 

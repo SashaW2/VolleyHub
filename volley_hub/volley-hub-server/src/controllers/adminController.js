@@ -1,6 +1,7 @@
 const userRepository = require('../repositories/userRepository');
 const advertRepository = require('../repositories/advertRepository');
 const notificationRepository = require('../repositories/notificationRepository');
+const notificationService = require('../services/notificationService');
 
 class AdminController {
     async getAllUsers(req, res) {
@@ -125,14 +126,7 @@ class AdminController {
                 return res.status(400).json({ success: false, message: 'Не указан пользователь или текст уведомления' });
             }
 
-            const escapedText = text.replace(/'/g, "''");
-
-            const query = `
-                INSERT INTO Notifications (UserId, Text, CreatedDate, IsRead, NotificationType)
-                VALUES (${userId}, N'[АДМИН] ${escapedText}', GETDATE(), 0, 'admin')
-            `;
-
-            const result = await notificationRepository.executeRawQuery(query);
+            await notificationService.sendNotification(userId, `[АДМИН] ${text}`, 'admin');
 
             res.json({ success: true, message: 'Уведомление отправлено' });
         } catch (error) {

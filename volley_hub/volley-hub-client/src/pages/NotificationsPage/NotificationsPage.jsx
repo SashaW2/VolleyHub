@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaBell } from 'react-icons/fa';
 import NotificationItem from '../../components/NotificationItem/NotificationItem';
 import notificationService from '../../services/notificationService';
@@ -12,17 +12,7 @@ const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadNotifications();
-
-        const interval = setInterval(() => {
-            loadNotifications(true);
-        }, 15000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const loadNotifications = async (silent = false) => {
+    const loadNotifications = useCallback(async (silent = false) => {
         try {
             if (!silent) setLoading(true);
             const response = await notificationService.getMyNotifications();
@@ -32,7 +22,15 @@ const NotificationsPage = () => {
         } finally {
             if (!silent) setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        loadNotifications();
+
+        const handler = () => loadNotifications(true);
+        window.addEventListener('notificationsChanged', handler);
+        return () => window.removeEventListener('notificationsChanged', handler);
+    }, [loadNotifications]);
 
     const handleDelete = async (id) => {
         try {

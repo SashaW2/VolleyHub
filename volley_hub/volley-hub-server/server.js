@@ -48,7 +48,6 @@ const startServer = async () => {
 
                     const twoHoursBefore = new Date(eventDateTime.getTime() - 2 * 60 * 60 * 1000);
 
-                    // Если текущее время в интервале [за 2 часа до игры; начало игры]
                     if (now >= twoHoursBefore && now < eventDateTime) {
                         const participantsRaw = await advertRepository.getParticipants(advert.id);
                         const participantIds = participantsRaw

@@ -1,4 +1,5 @@
 const notificationRepository = require('../repositories/notificationRepository');
+const sseHub = require('../utils/sseHub');
 
 class NotificationService {
     async sendNotification(userId, text, type = 'system') {
@@ -8,6 +9,14 @@ class NotificationService {
             createdDate: new Date(),
             notificationType: type
         });
+
+        sseHub.send(userId, 'notification', {
+            id: notification?.Id || notification?.id || null,
+            text,
+            notificationType: type,
+            createdDate: notification?.CreatedDate || new Date().toISOString()
+        });
+
         return notification;
     }
 
@@ -18,7 +27,21 @@ class NotificationService {
             createdDate: new Date(),
             notificationType: type
         }));
-        return await notificationRepository.createMany(notifications);
+        const created = await notificationRepository.createMany(notifications);
+
+        for (const userId of userIds) {
+            sseHub.send(userId, 'notification', {
+                text,
+                notificationType: type,
+                createdDate: new Date().toISOString()
+            });
+        }
+
+        return created;
+    }
+
+    async getUnreadCount(userId) {
+        return await notificationRepository.countUnread(userId);
     }
 
     async getUserNotifications(userId) {
@@ -38,10 +61,6 @@ class NotificationService {
 
     async markAllAsRead(userId) {
         return await notificationRepository.markAllAsRead(userId);
-    }
-
-    async getUnreadCount(userId) {
-        return await notificationRepository.countUnread(userId);
     }
 
     async deleteNotification(notificationId, userId) {

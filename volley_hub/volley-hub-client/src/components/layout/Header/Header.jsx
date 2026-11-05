@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
-import notificationService from '../../../services/notificationService';
+import { useNotificationStream } from '../../../context/NotificationStreamContext';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -11,42 +11,18 @@ const Header = () => {
     const { user, logout, isAuthenticated } = useAuth();
     const { t } = useLanguage();
     const { theme } = useTheme();
+    const { unreadCount, refetchCount } = useNotificationStream();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
 
     const isAdmin = user?.role === 'admin' || user?.isAdmin === true || user?.roleId === 2;
 
     const logoSrc = theme === 'dark' ? '/assets/images/logo.png' : '/assets/images/logo_t.png';
 
-    const loadUnreadCount = useCallback(async () => {
-        if (!isAuthenticated || isAdmin) {
-            setUnreadCount(0);
-            return;
-        }
-        try {
-            const count = await notificationService.getUnreadCount();
-            setUnreadCount(count);
-        } catch (error) {
-        }
-    }, [isAuthenticated, isAdmin]);
-
     useEffect(() => {
-        loadUnreadCount();
-        if (!isAuthenticated || isAdmin) return;
-
-        const interval = setInterval(loadUnreadCount, 15000);
-        return () => clearInterval(interval);
-    }, [loadUnreadCount, isAuthenticated, isAdmin]);
-
-    useEffect(() => {
-        const handleNotificationsChanged = () => {
-            loadUnreadCount();
-        };
-        window.addEventListener('notificationsChanged', handleNotificationsChanged);
-        return () => {
-            window.removeEventListener('notificationsChanged', handleNotificationsChanged);
-        };
-    }, [loadUnreadCount]);
+        const handler = () => refetchCount();
+        window.addEventListener('notificationsChanged', handler);
+        return () => window.removeEventListener('notificationsChanged', handler);
+    }, [refetchCount]);
 
     const handleLogout = () => {
         logout();
@@ -55,7 +31,6 @@ const Header = () => {
 
     const handleNotificationsClick = () => {
         setMobileMenuOpen(false);
-        loadUnreadCount();
     };
 
     return (
