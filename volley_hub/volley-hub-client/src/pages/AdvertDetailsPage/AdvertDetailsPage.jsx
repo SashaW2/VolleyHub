@@ -6,9 +6,22 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useCreatorModal } from '../../context/CreatorModalContext';
 import Button from '../../components/common/Button/Button';
+import Modal from '../../components/common/Modal/Modal';
 import advertService from '../../services/advertService';
 import locationService from '../../services/locationService';
 import styles from './AdvertDetailsPage.module.css';
+
+const getLevelPower = (level) => {
+    if (level === null || level === undefined) return null;
+    const map = { 1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 'D1': 5, 'D2': 4, 'D3': 3, 'D4': 2, 'D4Plus': 1 };
+    return map[level] ?? null;
+};
+
+const getLevelLabel = (level) => {
+    if (level === null || level === undefined) return '';
+    const map = { 1: 'D1', 2: 'D2', 3: 'D3', 4: 'D4', 5: 'D4+', 'D1': 'D1', 'D2': 'D2', 'D3': 'D3', 'D4': 'D4', 'D4Plus': 'D4+' };
+    return map[level] || String(level);
+};
 
 const AdvertDetailsPage = () => {
     const { id } = useParams();
@@ -22,6 +35,12 @@ const AdvertDetailsPage = () => {
     const [error, setError] = useState('');
     const [showMap, setShowMap] = useState(false);
     const [mapLoading, setMapLoading] = useState(false);
+
+    const [levelMismatchModal, setLevelMismatchModal] = useState({
+        isOpen: false,
+        message: '',
+        onConfirm: null
+    });
 
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
@@ -196,11 +215,35 @@ const AdvertDetailsPage = () => {
         }
     };
 
-    const handleSubscribe = async () => {
-        if (!isAuthenticated) {
-            navigate('/login');
+    const closeLevelMismatchModal = () => {
+        setLevelMismatchModal({ isOpen: false, message: '', onConfirm: null });
+    };
+
+    const checkLevelMismatchAndConfirm = (targetAdvert, onConfirm) => {
+        const userPower = getLevelPower(user?.gameLevel);
+        const advertPower = getLevelPower(targetAdvert?.gameLevel);
+
+        if (userPower === null || advertPower === null || userPower === advertPower) {
+            onConfirm();
             return;
         }
+
+        const fromLabel = getLevelLabel(user?.gameLevel);
+        const toLabel = getLevelLabel(targetAdvert?.gameLevel);
+        const key = advertPower > userPower ? 'levelMismatchHigher' : 'levelMismatchLower';
+        const message = t(key).replace('{from}', fromLabel).replace('{to}', toLabel);
+
+        setLevelMismatchModal({
+            isOpen: true,
+            message,
+            onConfirm: () => {
+                closeLevelMismatchModal();
+                onConfirm();
+            }
+        });
+    };
+
+    const doSubscribeAction = async () => {
         try {
             const isCurrentlyParticipating = advert.isParticipating;
             const isCurrentlySubscribed = advert.isSubscribed;
@@ -242,6 +285,30 @@ const AdvertDetailsPage = () => {
         } catch (err) {
             alert(err.message);
         }
+    };
+
+    const handleSubscribe = () => {
+        if (!isAuthenticated) {
+            navigate('/login');
+            return;
+        }
+
+        const isCurrentlyParticipating = advert?.isParticipating === true;
+        const isCurrentlySubscribed = advert?.isSubscribed === true;
+        const isFull = advert && advert.participantsCount >= advert.peopleCount;
+
+        const willSubscribe = !isCurrentlyParticipating && (
+            isCurrentlySubscribed || isFull || (!isFull && !isCurrentlySubscribed)
+        );
+
+        const isNewSubscription = !isCurrentlyParticipating && !isCurrentlySubscribed;
+
+        if (isNewSubscription && advert) {
+            checkLevelMismatchAndConfirm(advert, doSubscribeAction);
+            return;
+        }
+
+        doSubscribeAction();
     };
 
     const handleDelete = async () => {
@@ -413,6 +480,23 @@ const AdvertDetailsPage = () => {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                isOpen={levelMismatchModal.isOpen}
+                onClose={closeLevelMismatchModal}
+                title={t('levelMismatchTitle')}
+                size="small"
+            >
+                <p style={{ marginBottom: '1.5rem', lineHeight: 1.5 }}>{levelMismatchModal.message}</p>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                    <Button variant="outline" onClick={closeLevelMismatchModal}>
+                        {t('levelMismatchCancel')}
+                    </Button>
+                    <Button onClick={() => levelMismatchModal.onConfirm && levelMismatchModal.onConfirm()}>
+                        {t('levelMismatchConfirm')}
+                    </Button>
+                </div>
+            </Modal>
         </div>
     );
 };

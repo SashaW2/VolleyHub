@@ -64,3 +64,28 @@
     max-height: 70vh;
     overflow-y: auto;
 }
+
+[data-theme="dark"] .modal {
+    background: #1A2133;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .header {
+    border-bottom-color: #2A3448;
+}
+
+[data-theme="dark"] .title {
+    color: #F0F3FF;
+}
+
+[data-theme="dark"] .closeButton {
+    color: #A0A8C8;
+}
+
+[data-theme="dark"] .closeButton:hover {
+    color: #F87171;
+}
+
+[data-theme="dark"] .content {
+    color: #F0F3FF;
+}

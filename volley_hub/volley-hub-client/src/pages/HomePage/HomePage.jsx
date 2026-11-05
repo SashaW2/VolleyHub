@@ -7,11 +7,24 @@ import { useTheme } from '../../context/ThemeContext';
 import { useFilters } from '../../hooks/useFilters';
 import { useCreatorModal } from '../../context/CreatorModalContext';
 import Button from '../../components/common/Button/Button';
+import Modal from '../../components/common/Modal/Modal';
 import AdvertCard from '../../components/AdvertCard/AdvertCard';
 import FilterSection from '../../components/FilterSection/FilterSection';
 import advertService from '../../services/advertService';
 import locationService from '../../services/locationService';
 import styles from './HomePage.module.css';
+
+const getLevelPower = (level) => {
+    if (level === null || level === undefined) return null;
+    const map = { 1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 'D1': 5, 'D2': 4, 'D3': 3, 'D4': 2, 'D4Plus': 1 };
+    return map[level] ?? null;
+};
+
+const getLevelLabel = (level) => {
+    if (level === null || level === undefined) return '';
+    const map = { 1: 'D1', 2: 'D2', 3: 'D3', 4: 'D4', 5: 'D4+', 'D1': 'D1', 'D2': 'D2', 'D3': 'D3', 'D4': 'D4', 'D4Plus': 'D4+' };
+    return map[level] || String(level);
+};
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -29,6 +42,12 @@ const HomePage = () => {
     const [isInitialized, setIsInitialized] = useState(false);
 
     const [prevAuthState, setPrevAuthState] = useState(isAuthenticated);
+
+    const [levelMismatchModal, setLevelMismatchModal] = useState({
+        isOpen: false,
+        message: '',
+        onConfirm: null
+    });
 
     const isAdminUser = user?.role === 'admin' || user?.isAdmin === true || user?.roleId === 2;
 
@@ -286,8 +305,35 @@ const HomePage = () => {
         setActiveTab(tabId);
     };
 
-    const handleSubscribe = async (advertId) => {
-        if (!isAuthenticated) { navigate('/login'); return; }
+    const closeLevelMismatchModal = () => {
+        setLevelMismatchModal({ isOpen: false, message: '', onConfirm: null });
+    };
+
+    const checkLevelMismatchAndConfirm = (advert, onConfirm) => {
+        const userPower = getLevelPower(user?.gameLevel);
+        const advertPower = getLevelPower(advert?.gameLevel);
+
+        if (userPower === null || advertPower === null || userPower === advertPower) {
+            onConfirm();
+            return;
+        }
+
+        const fromLabel = getLevelLabel(user?.gameLevel);
+        const toLabel = getLevelLabel(advert?.gameLevel);
+        const key = advertPower > userPower ? 'levelMismatchHigher' : 'levelMismatchLower';
+        const message = t(key).replace('{from}', fromLabel).replace('{to}', toLabel);
+
+        setLevelMismatchModal({
+            isOpen: true,
+            message,
+            onConfirm: () => {
+                closeLevelMismatchModal();
+                onConfirm();
+            }
+        });
+    };
+
+    const doSubscribe = async (advertId) => {
         try {
             await advertService.subscribeToAdvert(advertId);
             setAdverts(prevAdverts =>
@@ -306,6 +352,32 @@ const HomePage = () => {
         } catch (err) {
             alert(err.message);
         }
+    };
+
+    const doSubscribeToWaiting = async (advertId) => {
+        try {
+            await advertService.subscribeToWaitingList(advertId);
+            setAdverts(prevAdverts =>
+                prevAdverts.map(advert => {
+                    if (advert.id === advertId) {
+                        return {
+                            ...advert,
+                            isSubscribed: true
+                        };
+                    }
+                    return advert;
+                })
+            );
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    const handleSubscribe = (advertId) => {
+        if (!isAuthenticated) { navigate('/login'); return; }
+        const advert = adverts.find(a => a.id === advertId);
+        if (!advert) return;
+        checkLevelMismatchAndConfirm(advert, () => doSubscribe(advertId));
     };
 
     const handleUnsubscribe = async (advertId) => {
@@ -329,24 +401,11 @@ const HomePage = () => {
         }
     };
 
-    const handleSubscribeToWaiting = async (advertId) => {
+    const handleSubscribeToWaiting = (advertId) => {
         if (!isAuthenticated) { navigate('/login'); return; }
-        try {
-            await advertService.subscribeToWaitingList(advertId);
-            setAdverts(prevAdverts =>
-                prevAdverts.map(advert => {
-                    if (advert.id === advertId) {
-                        return {
-                            ...advert,
-                            isSubscribed: true
-                        };
-                    }
-                    return advert;
-                })
-            );
-        } catch (err) {
-            alert(err.message);
-        }
+        const advert = adverts.find(a => a.id === advertId);
+        if (!advert) return;
+        checkLevelMismatchAndConfirm(advert, () => doSubscribeToWaiting(advertId));
     };
 
     const handleUnsubscribeFromWaiting = async (advertId) => {
@@ -583,6 +642,23 @@ const HomePage = () => {
                     )}
                 </div>
             </div>
+
+            <Modal
+                isOpen={levelMismatchModal.isOpen}
+                onClose={closeLevelMismatchModal}
+                title={t('levelMismatchTitle')}
+                size="small"
+            >
+                <p style={{ marginBottom: '1.5rem', lineHeight: 1.5 }}>{levelMismatchModal.message}</p>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                    <Button variant="outline" onClick={closeLevelMismatchModal}>
+                        {t('levelMismatchCancel')}
+                    </Button>
+                    <Button onClick={() => levelMismatchModal.onConfirm && levelMismatchModal.onConfirm()}>
+                        {t('levelMismatchConfirm')}
+                    </Button>
+                </div>
+            </Modal>
         </div>
     );
 };

@@ -227,6 +227,13 @@ export const LanguageProvider = ({ children }) => {
             levelTooltipD3: 'D3 – Уверенный: комбинационная игра с пайпами и темпами',
             levelTooltipD4: 'D4 – Любитель: простая игра с нападением',
             levelTooltipD4Plus: 'D4+ – Начинающий: перебрасывание мяча через сетку',
+
+            // Level mismatch confirmation
+            levelMismatchTitle: 'Подтверждение записи',
+            levelMismatchHigher: 'Вы хотите записаться на уровень выше вашего личного ({from} → {to}). Продолжить?',
+            levelMismatchLower: 'Вы хотите записаться на уровень ниже вашего личного ({from} → {to}). Продолжить?',
+            levelMismatchConfirm: 'Продолжить',
+            levelMismatchCancel: 'Отмена',
         },
         en: {
             // Header
@@ -439,6 +446,13 @@ export const LanguageProvider = ({ children }) => {
             levelTooltipD3: 'D3 – Confident: combination play with pipes and tempo',
             levelTooltipD4: 'D4 – Amateur: simple play with attacking',
             levelTooltipD4Plus: 'D4+ – Beginner: just throwing the ball over the net',
+
+            // Level mismatch confirmation
+            levelMismatchTitle: 'Confirm subscription',
+            levelMismatchHigher: 'You are about to join a game with a level higher than yours ({from} → {to}). Continue?',
+            levelMismatchLower: 'You are about to join a game with a level lower than yours ({from} → {to}). Continue?',
+            levelMismatchConfirm: 'Continue',
+            levelMismatchCancel: 'Cancel',
         }
     };
 
