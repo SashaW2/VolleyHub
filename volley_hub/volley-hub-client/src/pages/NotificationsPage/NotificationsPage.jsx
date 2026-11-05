@@ -14,23 +14,34 @@ const NotificationsPage = () => {
 
     useEffect(() => {
         loadNotifications();
+
+        const interval = setInterval(() => {
+            loadNotifications(true);
+        }, 15000);
+
+        return () => clearInterval(interval);
     }, []);
 
-    const loadNotifications = async () => {
+    const loadNotifications = async (silent = false) => {
         try {
+            if (!silent) setLoading(true);
             const response = await notificationService.getMyNotifications();
             setNotifications(response.notifications || []);
         } catch (error) {
             console.error('Error loading notifications:', error);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
         try {
+            const wasUnread = notifications.find(n => n.Id === id && !n.IsRead);
             await notificationService.deleteNotification(id);
             setNotifications(prev => prev.filter(n => n.Id !== id));
+            if (wasUnread) {
+                window.dispatchEvent(new CustomEvent('notificationsChanged'));
+            }
         } catch (error) {
             alert(error.message);
         }
@@ -38,10 +49,13 @@ const NotificationsPage = () => {
 
     const handleMarkAsRead = async (id) => {
         try {
+            const target = notifications.find(n => n.Id === id);
+            if (!target || target.IsRead) return;
             await notificationService.markAsRead(id);
             setNotifications(prev => prev.map(n =>
                 n.Id === id ? { ...n, IsRead: true } : n
             ));
+            window.dispatchEvent(new CustomEvent('notificationsChanged'));
         } catch (error) {
             alert(error.message);
         }
@@ -49,8 +63,12 @@ const NotificationsPage = () => {
 
     const handleMarkAllAsRead = async () => {
         try {
+            const hasUnread = notifications.some(n => !n.IsRead);
             await notificationService.markAllAsRead();
             setNotifications(prev => prev.map(n => ({ ...n, IsRead: true })));
+            if (hasUnread) {
+                window.dispatchEvent(new CustomEvent('notificationsChanged'));
+            }
         } catch (error) {
             alert(error.message);
         }

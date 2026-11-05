@@ -14,6 +14,7 @@ const AdminUsersPage = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [notificationText, setNotificationText] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [sendStatus, setSendStatus] = useState({ type: '', text: '' });
 
     const [searchEmail, setSearchEmail] = useState('');
     const [emailSuggestions, setEmailSuggestions] = useState([]);
@@ -101,15 +102,30 @@ const AdminUsersPage = () => {
         }
     };
 
+    const handleOpenModal = (user) => {
+        setSelectedUser(user);
+        setNotificationText('');
+        setSendStatus({ type: '', text: '' });
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setNotificationText('');
+        setSendStatus({ type: '', text: '' });
+    };
+
     const handleSendNotification = async () => {
         if (!notificationText.trim()) return;
         try {
             await notificationService.sendToUser(selectedUser.id, notificationText);
-            setShowModal(false);
+            setSendStatus({ type: 'success', text: 'Уведомление отправлено' });
             setNotificationText('');
-            alert('Уведомление отправлено');
+            setTimeout(() => {
+                handleCloseModal();
+            }, 1200);
         } catch (error) {
-            alert(error.message);
+            setSendStatus({ type: 'error', text: error.message || 'Ошибка отправки' });
         }
     };
 
@@ -166,7 +182,7 @@ const AdminUsersPage = () => {
                                 <div className={styles.infoRow}><FaVolleyballBall /><span>{getGameLevelDisplay(user.gameLevel)}</span></div>
                             </div>
                             <div className={styles.userActions}>
-                                <Button size="small" variant="outline" onClick={() => { setSelectedUser(user); setShowModal(true); }}>
+                                <Button size="small" variant="outline" onClick={() => handleOpenModal(user)}>
                                     Уведомление
                                 </Button>
                                 <Button
@@ -186,7 +202,7 @@ const AdminUsersPage = () => {
                 )}
             </div>
             {showModal && (
-                <div className={styles.modal} onClick={() => setShowModal(false)}>
+                <div className={styles.modal} onClick={handleCloseModal}>
                     <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
                         <h3>Отправить уведомление пользователю {selectedUser?.name}</h3>
                         <textarea
@@ -196,8 +212,13 @@ const AdminUsersPage = () => {
                             value={notificationText}
                             onChange={(e) => setNotificationText(e.target.value)}
                         />
+                        {sendStatus.text && (
+                            <div className={`${styles.sendStatus} ${styles[sendStatus.type]}`}>
+                                {sendStatus.text}
+                            </div>
+                        )}
                         <div className={styles.modalActions}>
-                            <Button variant="outline" onClick={() => setShowModal(false)}>Отмена</Button>
+                            <Button variant="outline" onClick={handleCloseModal}>Отмена</Button>
                             <Button onClick={handleSendNotification}>Отправить</Button>
                         </div>
                     </div>

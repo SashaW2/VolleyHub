@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
+import notificationService from '../../../services/notificationService';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -11,14 +12,50 @@ const Header = () => {
     const { t } = useLanguage();
     const { theme } = useTheme();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const isAdmin = user?.role === 'admin' || user?.isAdmin === true || user?.roleId === 2;
 
     const logoSrc = theme === 'dark' ? '/assets/images/logo.png' : '/assets/images/logo_t.png';
 
+    const loadUnreadCount = useCallback(async () => {
+        if (!isAuthenticated || isAdmin) {
+            setUnreadCount(0);
+            return;
+        }
+        try {
+            const count = await notificationService.getUnreadCount();
+            setUnreadCount(count);
+        } catch (error) {
+        }
+    }, [isAuthenticated, isAdmin]);
+
+    useEffect(() => {
+        loadUnreadCount();
+        if (!isAuthenticated || isAdmin) return;
+
+        const interval = setInterval(loadUnreadCount, 15000);
+        return () => clearInterval(interval);
+    }, [loadUnreadCount, isAuthenticated, isAdmin]);
+
+    useEffect(() => {
+        const handleNotificationsChanged = () => {
+            loadUnreadCount();
+        };
+        window.addEventListener('notificationsChanged', handleNotificationsChanged);
+        return () => {
+            window.removeEventListener('notificationsChanged', handleNotificationsChanged);
+        };
+    }, [loadUnreadCount]);
+
     const handleLogout = () => {
         logout();
         navigate('/');
+    };
+
+    const handleNotificationsClick = () => {
+        setMobileMenuOpen(false);
+        loadUnreadCount();
     };
 
     return (
@@ -44,7 +81,18 @@ const Header = () => {
                         <>
                             {!isAdmin && (
                                 <>
-                                    <Link to="/notifications" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>{t('notifications')}</Link>
+                                    <Link
+                                        to="/notifications"
+                                        className={`${styles.navLink} ${styles.notificationsLink}`}
+                                        onClick={handleNotificationsClick}
+                                    >
+                                        {t('notifications')}
+                                        {unreadCount > 0 && (
+                                            <span className={styles.unreadBadge}>
+                                                {unreadCount > 99 ? '99+' : unreadCount}
+                                            </span>
+                                        )}
+                                    </Link>
                                     <Link to="/profile" className={styles.navLink} onClick={() => setMobileMenuOpen(false)}>{t('profile')}</Link>
                                 </>
                             )}

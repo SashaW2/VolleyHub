@@ -40,6 +40,10 @@ class NotificationService {
         return await notificationRepository.markAllAsRead(userId);
     }
 
+    async getUnreadCount(userId) {
+        return await notificationRepository.countUnread(userId);
+    }
+
     async deleteNotification(notificationId, userId) {
         const notification = await notificationRepository.findById(notificationId);
         if (!notification) {

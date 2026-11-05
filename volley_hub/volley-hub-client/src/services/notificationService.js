@@ -28,6 +28,15 @@ class NotificationService {
         }
     }
 
+    async getUnreadCount() {
+        try {
+            const response = await api.get('/notifications/unread-count');
+            return response.data.count || 0;
+        } catch (error) {
+            return 0;
+        }
+    }
+
     async deleteNotification(id) {
         try {
             const response = await api.delete(`/notifications/${id}`);

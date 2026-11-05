@@ -276,3 +276,30 @@
         white-space: nowrap;
     }
 }
+
+.sendStatus {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.sendStatus.success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+}
+
+.sendStatus.error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
+}
+
+[data-theme="dark"] .sendStatus.success {
+    color: #34D399;
+}
+
+[data-theme="dark"] .sendStatus.error {
+    color: #F87171;
+}

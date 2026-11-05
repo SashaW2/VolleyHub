@@ -94,6 +94,21 @@ class NotificationRepository {
         }
     }
 
+    async countUnread(userId) {
+        try {
+            const query = `
+                SELECT COUNT(*) as count
+                FROM Notifications
+                WHERE UserId = ${userId} AND IsRead = 0
+            `;
+            const [results] = await sequelize.query(query);
+            return results[0]?.count || 0;
+        } catch (error) {
+            console.error('Error in countUnread:', error);
+            throw error;
+        }
+    }
+
     async delete(id) {
         try {
             const query = `DELETE FROM Notifications WHERE Id = ${id}`;
