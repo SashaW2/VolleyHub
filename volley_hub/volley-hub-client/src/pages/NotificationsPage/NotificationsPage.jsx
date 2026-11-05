@@ -36,6 +36,17 @@ const NotificationsPage = () => {
         }
     };
 
+    const handleMarkAsRead = async (id) => {
+        try {
+            await notificationService.markAsRead(id);
+            setNotifications(prev => prev.map(n =>
+                n.Id === id ? { ...n, IsRead: true } : n
+            ));
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
     const handleMarkAllAsRead = async () => {
         try {
             await notificationService.markAllAsRead();
@@ -72,6 +83,7 @@ const NotificationsPage = () => {
                                 key={notif.Id}
                                 notification={notif}
                                 onDelete={handleDelete}
+                                onMarkAsRead={handleMarkAsRead}
                             />
                         ))
                     )}

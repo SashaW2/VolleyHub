@@ -4,7 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import styles from './NotificationItem.module.css';
 
-const NotificationItem = ({ notification, onDelete }) => {
+const NotificationItem = ({ notification, onDelete, onMarkAsRead }) => {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
 
@@ -60,10 +60,22 @@ const NotificationItem = ({ notification, onDelete }) => {
         return notification.Text;
     };
 
+    const handleCardClick = () => {
+        if (!notification.IsRead && onMarkAsRead) {
+            onMarkAsRead(notification.Id);
+        }
+    };
+
+    const handleDeleteClick = (e) => {
+        e.stopPropagation();
+        onDelete(notification.Id);
+    };
+
     return (
         <div
             className={`${styles.notificationItem} ${!notification.IsRead ? styles.unread : ''}`}
             data-theme={theme}
+            onClick={handleCardClick}
         >
             <div className={styles.notificationIcon}>
                 {getNotificationIcon()}
@@ -75,7 +87,7 @@ const NotificationItem = ({ notification, onDelete }) => {
             </div>
             <button
                 className={styles.deleteButton}
-                onClick={() => onDelete(notification.Id)}
+                onClick={handleDeleteClick}
                 aria-label={t('deleteNotification')}
             >
                 <FaTrash />
