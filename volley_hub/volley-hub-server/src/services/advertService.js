@@ -355,6 +355,41 @@ class AdvertService {
             throw new Error('Нет прав для удаления');
         }
 
+        const getStartDateTime = () => {
+            if (!advert.date || !advert.startTime) return null;
+
+            let hours = 0, minutes = 0;
+            const rawTime = advert.startTime;
+
+            if (rawTime instanceof Date) {
+                hours = rawTime.getUTCHours();
+                minutes = rawTime.getUTCMinutes();
+            } else if (typeof rawTime === 'string') {
+                const parts = rawTime.split(':');
+                hours = parseInt(parts[0], 10) || 0;
+                minutes = parseInt(parts[1], 10) || 0;
+            } else {
+                return null;
+            }
+
+            const dateStr = advert.date instanceof Date
+                ? advert.date.toISOString().split('T')[0]
+                : String(advert.date).split('T')[0];
+
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const eventDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+
+            if (isNaN(eventDateTime.getTime())) return null;
+            return eventDateTime;
+        };
+
+        const eventDateTime = getStartDateTime();
+        const isPastEvent = eventDateTime !== null && eventDateTime < new Date();
+
+        if (isPastEvent) {
+            return await advertRepository.delete(id);
+        }
+
         const participants = await advertRepository.getParticipants(id);
         const participantsList = participants.map(p => p.UserId).filter(id => id);
 
