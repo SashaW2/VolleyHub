@@ -25,9 +25,26 @@ export const ThemeProvider = ({ children }) => {
         }
     }, [theme]);
 
+    useEffect(() => {
+        const handleThemeChange = (event) => {
+            if (event.detail) {
+                setTheme(event.detail);
+                localStorage.setItem('theme', event.detail);
+                document.documentElement.setAttribute('data-theme', event.detail);
+            }
+        };
+
+        window.addEventListener('themeChange', handleThemeChange);
+
+        return () => {
+            window.removeEventListener('themeChange', handleThemeChange);
+        };
+    }, []);
+
     const changeTheme = (newTheme) => {
         setTheme(newTheme);
         localStorage.setItem('theme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
     };
 
     return (

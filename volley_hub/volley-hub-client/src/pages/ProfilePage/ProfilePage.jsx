@@ -85,8 +85,8 @@ const ProfilePage = () => {
         email: user?.email || '',
         phone: user?.phone || '',
         gameLevel: getLevelFromNumber(user?.gameLevel) || 'D2',
-        language: user?.language || 'ru',
-        theme: user?.theme || 'light'
+        language: language || 'ru',
+        theme: theme || 'light'
     });
     const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
     const [profileErrors, setProfileErrors] = useState({});
@@ -97,7 +97,6 @@ const ProfilePage = () => {
     const [message, setMessage] = useState({ text: '', type: '' });
     const levels = ['D1', 'D2', 'D3', 'D4', 'D4Plus'];
 
-    // Функции валидации с использованием t
     const validateName = useCallback((name) => {
         if (!name) return t('nameRequired');
         if (name.length < 2) return t('nameMinLength');
@@ -147,9 +146,7 @@ const ProfilePage = () => {
         return '';
     }, [t]);
 
-    // Пересчет ошибок при смене языка
     useEffect(() => {
-        // Обновляем ошибки профиля
         const newProfileErrors = {
             name: validateName(profile.name),
             email: validateEmail(profile.email),
@@ -158,7 +155,6 @@ const ProfilePage = () => {
         };
         setProfileErrors(newProfileErrors);
 
-        // Обновляем ошибки пароля
         const errors = validatePasswordStrength(passwords.new);
         setPasswordStrength({ valid: errors.length === 0, errors });
         if (passwords.confirm && passwords.new !== passwords.confirm) {
@@ -209,7 +205,9 @@ const ProfilePage = () => {
         try {
             const profileToSend = {
                 ...profile,
-                gameLevel: getLevelNumber(profile.gameLevel)
+                gameLevel: getLevelNumber(profile.gameLevel),
+                language: language,
+                theme: theme
             };
             await updateProfile(profileToSend);
 
@@ -278,15 +276,28 @@ const ProfilePage = () => {
         setProfileErrors({ ...profileErrors, phone: error });
     };
 
+    const persistUserSetting = (key, value) => {
+        const stored = localStorage.getItem('user');
+        if (!stored) return;
+        try {
+            const parsed = JSON.parse(stored);
+            parsed[key] = value;
+            localStorage.setItem('user', JSON.stringify(parsed));
+        } catch (e) {
+        }
+    };
+
     const handleLanguageChange = (lang) => {
         setProfile({ ...profile, language: lang });
         changeLanguage(lang);
+        persistUserSetting('language', lang);
         if (message.text) setMessage({ text: '', type: '' });
     };
 
     const handleThemeChange = (newTheme) => {
         setProfile({ ...profile, theme: newTheme });
         changeTheme(newTheme);
+        persistUserSetting('theme', newTheme);
         if (message.text) setMessage({ text: '', type: '' });
     };
 

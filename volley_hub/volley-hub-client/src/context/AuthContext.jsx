@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
             if (userData.theme) {
                 localStorage.setItem('theme', userData.theme);
                 document.documentElement.setAttribute('data-theme', userData.theme);
+                window.dispatchEvent(new CustomEvent('themeChange', { detail: userData.theme }));
             }
         }
     };
