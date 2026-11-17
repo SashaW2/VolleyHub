@@ -118,7 +118,18 @@ class AdvertService {
             }
 
             if (filters.useNearestLocations && userAddress) {
-                adverts = await locationService.getNearestAdverts(adverts, userAddress);
+                const result = await locationService.getNearestAdverts(adverts, userAddress);
+
+                adverts = result.adverts.map(item => {
+                    const plain = item.advert.toJSON ? item.advert.toJSON() : { ...item.advert };
+                    return {
+                        ...plain,
+                        _coords: item.coords,
+                        _distance: item.distance
+                    };
+                });
+
+                adverts._userCoords = result.userCoords;
             }
 
             return adverts || [];

@@ -438,3 +438,9 @@
 .notificationSection {
     margin-top: 1rem;
 }
+
+.headerActions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}

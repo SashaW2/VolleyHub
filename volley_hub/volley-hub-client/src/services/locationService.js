@@ -10,6 +10,16 @@ class LocationService {
             return null;
         }
     }
+
+    async getAddressByCoords(lat, lon) {
+        try {
+            const response = await api.post('/location/reverse', { lat, lon });
+            return response.data.address;
+        } catch (error) {
+            console.error('Reverse geocoding error:', error);
+            return null;
+        }
+    }
 }
 
 export default new LocationService();

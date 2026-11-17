@@ -87,7 +87,11 @@ class AdvertController {
             }
 
             const adverts = await advertService.getAllAdverts(filters, req.user, req.query.userAddress);
-            res.json({ success: true, adverts });
+
+            const userCoords = adverts && adverts._userCoords ? adverts._userCoords : null;
+            const list = Array.isArray(adverts) ? adverts : [];
+
+            res.json({ success: true, adverts: list, userCoords });
         } catch (error) {
             console.error('Error in getAll:', error);
             res.status(500).json({ success: false, message: error.message });

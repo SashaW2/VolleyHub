@@ -17,7 +17,6 @@ export const LanguageProvider = ({ children }) => {
 
     const translations = {
         ru: {
-            // Header
             home: 'Главная',
             about: 'О нас',
             notifications: 'Уведомления',
@@ -28,7 +27,6 @@ export const LanguageProvider = ({ children }) => {
             register: 'Регистрация',
             logout: 'Выйти',
 
-            // HomePage
             findTeam: 'Найди свою команду для волейбола',
             joinGames: 'Присоединяйся к играм, создавай объявления и находи единомышленников',
             createAdvert: 'Создать объявление',
@@ -43,7 +41,6 @@ export const LanguageProvider = ({ children }) => {
             loadingError: 'Ошибка загрузки объявлений',
             confirmDelete: 'Вы уверены, что хотите удалить это объявление?',
 
-            // AdvertCard
             gameLevel: 'Уровень',
             yourAdvert: 'Ваше объявление',
             youParticipate: 'Вы участвуете',
@@ -63,7 +60,6 @@ export const LanguageProvider = ({ children }) => {
             deleteNotAllowed: 'Удаление невозможно в период за 2 часа до начала игры. Удалить можно либо за 2+ часа до начала, либо после окончания игры',
             unsubscribeNotAllowed: 'Отписка невозможна менее чем за час до начала игры',
 
-            // LoginPage
             loginTitle: 'Вход в аккаунт',
             welcomeBack: 'Добро пожаловать обратно!',
             email: 'Email',
@@ -72,7 +68,6 @@ export const LanguageProvider = ({ children }) => {
             registerLink: 'Зарегистрироваться',
             invalidCredentials: 'Неверный email или пароль',
 
-            // RegisterPage
             registerTitle: 'Регистрация',
             createAccount: 'Создайте новый аккаунт',
             name: 'Имя',
@@ -84,7 +79,6 @@ export const LanguageProvider = ({ children }) => {
             passwordRequirements: 'Пароль должен содержать:',
             strongPassword: '✓ Надёжный пароль',
 
-            // ProfilePage
             personalAccount: 'Личный кабинет',
             saveChanges: 'Сохранить изменения',
             changePassword: 'Смена пароля',
@@ -120,11 +114,9 @@ export const LanguageProvider = ({ children }) => {
             passwordDigitRequired: 'цифру (0-9)',
             passwordSpecialRequired: 'спецсимвол (!@#$%^&*)',
 
-            // Footer
             contacts: 'Контакты',
             copyright: 'Все права защищены',
 
-            // Notifications
             notificationsTitle: 'Уведомления',
             noNotifications: 'Нет уведомлений',
             markAllRead: 'Прочитать все',
@@ -133,14 +125,12 @@ export const LanguageProvider = ({ children }) => {
             gameReminder: 'Напоминание',
             deleteNotification: 'Удалить уведомление',
 
-            // About
             aboutTitle: 'О приложении',
             aboutDescription: 'Приложение разработано в рамках курсового проекта по ПСКП',
             developer: 'Разработчик:',
             developerName: 'Билый А.С.',
             version: 'Версия приложения 1.0',
 
-            // Admin
             userManagement: 'Управление пользователями',
             sendNotification: 'Уведомление',
             block: 'Заблокировать',
@@ -154,7 +144,6 @@ export const LanguageProvider = ({ children }) => {
             blockedUsers: 'Заблокировано',
             noData: 'Нет данных',
 
-            // AddAdvertPage
             loadError: 'Ошибка загрузки объявления',
             saveError: 'Ошибка сохранения',
             editAdvert: 'Редактирование объявления',
@@ -174,7 +163,6 @@ export const LanguageProvider = ({ children }) => {
             peopleCountLessThanCurrent: 'Новое максимальное количество участников не может быть меньше текущего количества записанных',
             overlappingAdvert: 'На эту дату и время по данному адресу уже есть активное объявление',
 
-            // AdvertDetailsPage
             back: 'Назад',
             description: 'Описание',
             map: 'Карта',
@@ -184,7 +172,6 @@ export const LanguageProvider = ({ children }) => {
             closeMap: 'Закрыть карту',
             loadingMap: 'Загрузка карты...',
 
-            // FilterSection
             street: 'Улица',
             streetPlaceholder: 'Введите улицу',
             timeRange: 'Временной диапазон',
@@ -196,7 +183,6 @@ export const LanguageProvider = ({ children }) => {
             clear: 'Очистить всё',
             apply: 'Применить',
 
-            // Validation errors
             addressRequired: 'Адрес обязателен',
             dateRequired: 'Дата обязательна',
             datePast: 'Дата не может быть в прошлом',
@@ -221,22 +207,30 @@ export const LanguageProvider = ({ children }) => {
             validating: 'Проверка адреса...',
             addressInvalid: 'Введите корректный адрес. Пример: ул. Ленина 10, Минск',
 
-            // Tooltip
             levelTooltipD1: 'D1 – Профессиональный: действующие МС, КМС',
             levelTooltipD2: 'D2 – Продвинутый: полупрофи, воспитанники СДЮШОР',
             levelTooltipD3: 'D3 – Уверенный: комбинационная игра с пайпами и темпами',
             levelTooltipD4: 'D4 – Любитель: простая игра с нападением',
             levelTooltipD4Plus: 'D4+ – Начинающий: перебрасывание мяча через сетку',
 
-            // Level mismatch confirmation
             levelMismatchTitle: 'Подтверждение записи',
             levelMismatchHigher: 'Вы хотите записаться на уровень выше вашего личного ({from} → {to}). Продолжить?',
             levelMismatchLower: 'Вы хотите записаться на уровень ниже вашего личного ({from} → {to}). Продолжить?',
             levelMismatchConfirm: 'Продолжить',
             levelMismatchCancel: 'Отмена',
+
+            mapNearestTitle: 'Ближайшие площадки',
+            mapAddressPrompt: 'Укажите ваш адрес, чтобы построить карту 5 ближайших площадок',
+            mapBuild: 'Построить карту',
+            mapNeedsNearestFilter: 'Включите фильтр «Ближайшие площадки» и укажите ваш адрес, чтобы открыть карту',
+            mapNoResults: 'Не удалось найти площадки рядом с указанным адресом',
+            mapLoading: 'Загрузка карты...',
+            mapDistance: 'Расстояние',
+            mapTop: 'Топ',
+            mapViewAdvert: 'Смотреть объявление',
+            mapClose: 'Закрыть'
         },
         en: {
-            // Header
             home: 'Home',
             about: 'About',
             notifications: 'Notifications',
@@ -247,7 +241,6 @@ export const LanguageProvider = ({ children }) => {
             register: 'Register',
             logout: 'Logout',
 
-            // HomePage
             findTeam: 'Find your volleyball team',
             joinGames: 'Join games, create adverts and find like-minded people',
             createAdvert: 'Create Advert',
@@ -262,7 +255,6 @@ export const LanguageProvider = ({ children }) => {
             loadingError: 'Error loading adverts',
             confirmDelete: 'Are you sure you want to delete this advert?',
 
-            // AdvertCard
             gameLevel: 'Level',
             yourAdvert: 'Your advert',
             youParticipate: 'You participate',
@@ -282,7 +274,6 @@ export const LanguageProvider = ({ children }) => {
             deleteNotAllowed: 'Deletion is not allowed within 2 hours before the game starts. You can delete either 2+ hours before the start or after the game ends',
             unsubscribeNotAllowed: 'Unsubscribe is not allowed less than one hour before the game starts',
 
-            // LoginPage
             loginTitle: 'Login',
             welcomeBack: 'Welcome back!',
             email: 'Email',
@@ -291,7 +282,6 @@ export const LanguageProvider = ({ children }) => {
             registerLink: 'Register',
             invalidCredentials: 'Invalid email or password',
 
-            // RegisterPage
             registerTitle: 'Registration',
             createAccount: 'Create a new account',
             name: 'Name',
@@ -303,7 +293,6 @@ export const LanguageProvider = ({ children }) => {
             passwordRequirements: 'Password must contain:',
             strongPassword: '✓ Strong password',
 
-            // ProfilePage
             personalAccount: 'Personal Account',
             saveChanges: 'Save Changes',
             changePassword: 'Change Password',
@@ -339,11 +328,9 @@ export const LanguageProvider = ({ children }) => {
             passwordDigitRequired: 'digit (0-9)',
             passwordSpecialRequired: 'special character (!@#$%^&*)',
 
-            // Footer
             contacts: 'Contacts',
             copyright: 'All rights reserved',
 
-            // Notifications
             notificationsTitle: 'Notifications',
             noNotifications: 'No notifications',
             markAllRead: 'Mark all as read',
@@ -352,14 +339,12 @@ export const LanguageProvider = ({ children }) => {
             gameReminder: 'Reminder',
             deleteNotification: 'Delete notification',
 
-            // About
             aboutTitle: 'About the app',
             aboutDescription: 'The application was developed as part of a course project on PSCP',
             developer: 'Developer:',
             developerName: 'Bilyi A.S.',
             version: 'Application version 1.0',
 
-            // Admin
             userManagement: 'User Management',
             sendNotification: 'Notification',
             block: 'Block',
@@ -373,7 +358,6 @@ export const LanguageProvider = ({ children }) => {
             blockedUsers: 'Blocked users',
             noData: 'No data',
 
-            // AddAdvertPage
             loadError: 'Error loading advert',
             saveError: 'Error saving',
             editAdvert: 'Edit Advert',
@@ -393,7 +377,6 @@ export const LanguageProvider = ({ children }) => {
             peopleCountLessThanCurrent: 'New maximum number of participants cannot be less than the current number of registered participants',
             overlappingAdvert: 'There is already an active advert at this address on this date and time',
 
-            // AdvertDetailsPage
             back: 'Back',
             description: 'Description',
             map: 'Map',
@@ -403,7 +386,6 @@ export const LanguageProvider = ({ children }) => {
             closeMap: 'Close map',
             loadingMap: 'Loading map...',
 
-            // FilterSection
             street: 'Street',
             streetPlaceholder: 'Enter street',
             timeRange: 'Time range',
@@ -415,7 +397,6 @@ export const LanguageProvider = ({ children }) => {
             clear: 'Clear all',
             apply: 'Apply',
 
-            // Validation errors
             addressRequired: 'Address is required',
             dateRequired: 'Date is required',
             datePast: 'Date cannot be in the past',
@@ -440,19 +421,28 @@ export const LanguageProvider = ({ children }) => {
             validating: 'Validating address...',
             addressInvalid: 'Enter a valid address. Example: Lenina str. 10, Minsk',
 
-            // Tooltip
             levelTooltipD1: 'D1 – Professional: active Masters and Candidate Masters of Sport',
             levelTooltipD2: 'D2 – Advanced: semi-pro, sports school graduates',
             levelTooltipD3: 'D3 – Confident: combination play with pipes and tempo',
             levelTooltipD4: 'D4 – Amateur: simple play with attacking',
             levelTooltipD4Plus: 'D4+ – Beginner: just throwing the ball over the net',
 
-            // Level mismatch confirmation
             levelMismatchTitle: 'Confirm subscription',
             levelMismatchHigher: 'You are about to join a game with a level higher than yours ({from} → {to}). Continue?',
             levelMismatchLower: 'You are about to join a game with a level lower than yours ({from} → {to}). Continue?',
             levelMismatchConfirm: 'Continue',
             levelMismatchCancel: 'Cancel',
+
+            mapNearestTitle: 'Nearest sites',
+            mapAddressPrompt: 'Enter your address to build a map of the 5 nearest sites',
+            mapBuild: 'Build map',
+            mapNeedsNearestFilter: 'Enable the "Nearest sites" filter and enter your address to open the map',
+            mapNoResults: 'No courts found near the specified address',
+            mapLoading: 'Loading map...',
+            mapDistance: 'Distance',
+            mapTop: 'Top',
+            mapViewAdvert: 'View advert',
+            mapClose: 'Close'
         }
     };
 

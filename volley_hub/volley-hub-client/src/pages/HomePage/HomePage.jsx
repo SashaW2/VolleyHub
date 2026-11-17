@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaFilter, FaPlus, FaTimes } from 'react-icons/fa';
+import { FaFilter, FaPlus, FaTimes, FaMapMarkedAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -10,6 +10,8 @@ import Button from '../../components/common/Button/Button';
 import Modal from '../../components/common/Modal/Modal';
 import AdvertCard from '../../components/AdvertCard/AdvertCard';
 import FilterSection from '../../components/FilterSection/FilterSection';
+import NearestMapModal from '../../components/NearestMapModal/NearestMapModal';
+import NearestAddressModal from '../../components/NearestAddressModal/NearestAddressModal';
 import advertService from '../../services/advertService';
 import locationService from '../../services/locationService';
 import styles from './HomePage.module.css';
@@ -40,6 +42,13 @@ const HomePage = () => {
     const [error, setError] = useState(null);
     const [currentFilters, setCurrentFilters] = useState(null);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [userCoords, setUserCoords] = useState(null);
+
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+    const [isMapOpen, setIsMapOpen] = useState(false);
+    const [mapAdverts, setMapAdverts] = useState([]);
+    const [mapUserCoords, setMapUserCoords] = useState(null);
+    const [mapBusy, setMapBusy] = useState(false);
 
     const [prevAuthState, setPrevAuthState] = useState(isAuthenticated);
 
@@ -215,6 +224,7 @@ const HomePage = () => {
                     response = await advertService.getAllAdverts(apiFilters);
                     if (response && response.adverts) {
                         setAdverts(response.adverts);
+                        setUserCoords(response.userCoords || null);
                         setLoading(false);
                         return;
                     }
@@ -303,6 +313,54 @@ const HomePage = () => {
 
     const handleTabChange = (tabId) => {
         setActiveTab(tabId);
+    };
+
+    const openMapWithFilters = async (filtersWithNearest) => {
+        setMapBusy(true);
+        try {
+            const response = await advertService.getAllAdverts({
+                ...filtersWithNearest,
+                useNearestLocations: true,
+                userAddress: filtersWithNearest.userAddress
+            });
+            const list = (response.adverts || []).filter(a => a && a._coords);
+            if (list.length === 0) {
+                throw new Error(t('mapNoResults'));
+            }
+            setMapAdverts(list);
+            setMapUserCoords(response.userCoords || null);
+            setIsMapOpen(true);
+        } finally {
+            setMapBusy(false);
+        }
+    };
+
+    const handleOpenMap = () => {
+        if (mapBusy) return;
+        if (currentFilters && currentFilters.useNearestLocations && currentFilters.userAddress) {
+            openMapWithFilters(currentFilters).catch((e) => alert(e.message || t('loadingError')));
+            return;
+        }
+        setIsAddressModalOpen(true);
+    };
+
+    const handleAddressConfirm = async (address) => {
+        const updatedFilters = {
+            ...(currentFilters || getEmptyFilters()),
+            useNearestLocations: true,
+            userAddress: address
+        };
+
+        setCurrentFilters(updatedFilters);
+        applyFilters(updatedFilters);
+        if (isAuthenticated) {
+            localStorage.setItem('homePageFilters', JSON.stringify(updatedFilters));
+        }
+
+        setIsAddressModalOpen(false);
+
+        await openMapWithFilters(updatedFilters);
+        loadAdverts(updatedFilters);
     };
 
     const closeLevelMismatchModal = () => {
@@ -557,9 +615,14 @@ const HomePage = () => {
                                 </button>
                             ))}
                         </div>
-                        <Button variant="outline" size="small" icon={FaFilter} onClick={() => setShowFilters(!showFilters)}>
-                            {t('filters')}
-                        </Button>
+                        <div className={styles.headerActions}>
+                            <Button variant="outline" size="small" icon={FaMapMarkedAlt} onClick={handleOpenMap} disabled={mapBusy}>
+                                {t('map')}
+                            </Button>
+                            <Button variant="outline" size="small" icon={FaFilter} onClick={() => setShowFilters(!showFilters)}>
+                                {t('filters')}
+                            </Button>
+                        </div>
                     </div>
 
                     {activeChips.length > 0 && (
@@ -642,6 +705,20 @@ const HomePage = () => {
                     )}
                 </div>
             </div>
+
+            <NearestAddressModal
+                isOpen={isAddressModalOpen}
+                onClose={() => setIsAddressModalOpen(false)}
+                initialAddress={currentFilters?.userAddress || ''}
+                onConfirm={handleAddressConfirm}
+            />
+
+            <NearestMapModal
+                isOpen={isMapOpen}
+                onClose={() => setIsMapOpen(false)}
+                adverts={mapAdverts}
+                userCoords={mapUserCoords}
+            />
 
             <Modal
                 isOpen={levelMismatchModal.isOpen}
