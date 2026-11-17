@@ -54,6 +54,15 @@ class AdvertService {
         }
     }
 
+    async getParticipants(id) {
+        try {
+            const response = await api.get(`/adverts/${id}/participants`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Ошибка загрузки участников' };
+        }
+    }
+
     async createAdvert(advertData) {
         try {
             const response = await api.post('/adverts', advertData);

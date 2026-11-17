@@ -195,6 +195,23 @@ class AdvertRepository {
         }
     }
 
+    async getParticipantsWithUsers(advertId) {
+        const query = `
+            SELECT u.Id as id, u.Name as name, u.Email as email, ap.JoinedAt as joinedAt
+            FROM AdvertParticipants ap
+            INNER JOIN Users u ON u.Id = ap.UserId
+            WHERE ap.AdvertId = ${parseInt(advertId, 10)}
+            ORDER BY ap.JoinedAt
+        `;
+        try {
+            const [results] = await sequelize.query(query);
+            return results || [];
+        } catch (error) {
+            console.error('Error in getParticipantsWithUsers:', error);
+            throw error;
+        }
+    }
+
     async addSubscriber(advertId, userId) {
         const query = `
             IF NOT EXISTS (SELECT 1 FROM AdvertSubscribers WHERE AdvertId = ${advertId} AND UserId = ${userId})

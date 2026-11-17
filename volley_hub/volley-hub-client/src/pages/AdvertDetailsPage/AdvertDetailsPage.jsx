@@ -35,6 +35,10 @@ const AdvertDetailsPage = () => {
     const [error, setError] = useState('');
     const [showMap, setShowMap] = useState(false);
     const [mapLoading, setMapLoading] = useState(false);
+    const [showParticipants, setShowParticipants] = useState(false);
+    const [participants, setParticipants] = useState([]);
+    const [participantsLoading, setParticipantsLoading] = useState(false);
+    const [participantsError, setParticipantsError] = useState('');
 
     const [levelMismatchModal, setLevelMismatchModal] = useState({
         isOpen: false,
@@ -49,6 +53,9 @@ const AdvertDetailsPage = () => {
 
     useEffect(() => {
         loadAdvert();
+        setShowParticipants(false);
+        setParticipants([]);
+        setParticipantsError('');
         return () => {
             if (mapInstanceRef.current) {
                 mapInstanceRef.current.destroy();
@@ -134,6 +141,26 @@ const AdvertDetailsPage = () => {
             setError(t('mapLoadError'));
             setShowMap(false);
             setMapLoading(false);
+        }
+    };
+
+    const toggleParticipants = async () => {
+        if (showParticipants) {
+            setShowParticipants(false);
+            return;
+        }
+
+        setShowParticipants(true);
+        setParticipantsLoading(true);
+        setParticipantsError('');
+
+        try {
+            const response = await advertService.getParticipants(id);
+            setParticipants(response.participants || []);
+        } catch (err) {
+            setParticipantsError(err.message || t('participantsListError'));
+        } finally {
+            setParticipantsLoading(false);
         }
     };
 
@@ -409,9 +436,16 @@ const AdvertDetailsPage = () => {
                         <div className={styles.section}>
                             <div className={styles.sectionLabel}>{t('location')}</div>
                             <div className={styles.sectionValue}>{advert.address}</div>
-                            <button className={styles.mapButton} onClick={loadMap}>
-                                {t('map')}
-                            </button>
+                            <div className={styles.locationActions}>
+                                <button className={styles.mapButton} onClick={loadMap}>
+                                    {t('map')}
+                                </button>
+                                {(isCreator || isAdmin) && (
+                                    <button className={styles.participantsButton} onClick={toggleParticipants}>
+                                        {t('participantsListButton')}
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         {showMap && (
@@ -419,6 +453,39 @@ const AdvertDetailsPage = () => {
                                 {mapLoading && <div className={styles.mapLoading}>{t('loadingMap')}</div>}
                                 <div ref={mapRef} className={styles.map} style={{ display: mapLoading ? 'none' : 'block' }}></div>
                                 <button className={styles.closeMapButton} onClick={closeMap}>✕ {t('closeMap')}</button>
+                            </div>
+                        )}
+
+                        {showParticipants && (isCreator || isAdmin) && (
+                            <div className={styles.participantsPanel}>
+                                <div className={styles.participantsHeader}>
+                                    <span>{t('participants')} ({participants.length})</span>
+                                    <button className={styles.participantsClose} onClick={() => setShowParticipants(false)}>✕</button>
+                                </div>
+                                {participantsLoading && (
+                                    <div className={styles.participantsEmpty}>{t('loading')}</div>
+                                )}
+                                {!participantsLoading && participantsError && (
+                                    <div className={styles.participantsError}>{participantsError}</div>
+                                )}
+                                {!participantsLoading && !participantsError && participants.length === 0 && (
+                                    <div className={styles.participantsEmpty}>{t('participantsListEmpty')}</div>
+                                )}
+                                {!participantsLoading && !participantsError && participants.length > 0 && (
+                                    <ul className={styles.participantsList}>
+                                        {participants.map((participant) => (
+                                            <li key={participant.id} className={styles.participantItem}>
+                                                <div className={styles.participantAvatar}>
+                                                    {(participant.name || '?').trim().charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className={styles.participantInfo}>
+                                                    <div className={styles.participantName}>{participant.name}</div>
+                                                    <div className={styles.participantEmail}>{participant.email}</div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
                         )}
 

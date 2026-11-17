@@ -569,6 +569,24 @@ class AdvertService {
         return await advertRepository.getParticipantsCount(advertId);
     }
 
+    async getParticipantsWithUsers(advertId, currentUser) {
+        const advert = await advertRepository.findById(advertId);
+        if (!advert) {
+            const error = new Error('Объявление не найдено');
+            error.status = 404;
+            throw error;
+        }
+
+        const isAdminUser = currentUser?.roleId === 2 || currentUser?.role === 'admin' || currentUser?.isAdmin === true;
+        if (!isAdminUser && advert.userId !== currentUser?.id) {
+            const error = new Error('Нет прав для просмотра участников');
+            error.status = 403;
+            throw error;
+        }
+
+        return await advertRepository.getParticipantsWithUsers(advertId);
+    }
+
     async isParticipating(advertId, userId) {
         return await advertRepository.isParticipant(advertId, userId);
     }

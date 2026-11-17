@@ -155,6 +155,27 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
         }
     };
 
+    const normalizeTime = (field, value) => {
+        const fallback = field === 'startTime' ? '00:00' : '23:59';
+        return /^([01]\d|2[0-3]):[0-5]\d$/.test(value || '') ? value : fallback;
+    };
+
+    const handleTimeChange = (field, event) => {
+        const normalized = normalizeTime(field, event.target.value);
+        // Нативный input[type=time] можно очистить до "--:--", а состояние при этом
+        // остаётся прежним и React не перерисовывает поле — возвращаем значение в DOM вручную.
+        event.target.value = normalized;
+        setFilters(prev => ({ ...prev, [field]: normalized }));
+    };
+
+    const handleTimeBlur = (field, event) => {
+        const normalized = normalizeTime(field, event.target.value);
+        event.target.value = normalized;
+        if (filters[field] !== normalized) {
+            setFilters(prev => ({ ...prev, [field]: normalized }));
+        }
+    };
+
     const handleApply = () => {
         if (filters.useNearestLocations && !filters.userAddress.trim()) {
             setAddressError(t('addressRequired'));
@@ -164,8 +185,13 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
 
         const filtersToSend = {
             ...filters,
+            startTime: normalizeTime('startTime', filters.startTime),
+            endTime: normalizeTime('endTime', filters.endTime),
             levels: Array.isArray(filters.levels) ? filters.levels : []
         };
+        if (filtersToSend.startTime !== filters.startTime || filtersToSend.endTime !== filters.endTime) {
+            setFilters(filtersToSend);
+        }
         onApplyFilters(filtersToSend);
     };
 
@@ -242,9 +268,23 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
                 {expandedSections.time && (
                     <div className={styles.filterContent}>
                         <div className={styles.timeRange}>
-                            <input type="time" className={styles.timeInput} value={filters.startTime} onChange={(e) => setFilters({...filters, startTime: e.target.value})} />
+                            <input
+                                type="time"
+                                className={styles.timeInput}
+                                value={filters.startTime}
+                                onChange={(e) => handleTimeChange('startTime', e)}
+                                onBlur={(e) => handleTimeBlur('startTime', e)}
+                                required
+                            />
                             <span className={styles.timeSeparator}>-</span>
-                            <input type="time" className={styles.timeInput} value={filters.endTime} onChange={(e) => setFilters({...filters, endTime: e.target.value})} />
+                            <input
+                                type="time"
+                                className={styles.timeInput}
+                                value={filters.endTime}
+                                onChange={(e) => handleTimeChange('endTime', e)}
+                                onBlur={(e) => handleTimeBlur('endTime', e)}
+                                required
+                            />
                         </div>
                     </div>
                 )}

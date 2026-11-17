@@ -143,6 +143,15 @@ class AdvertController {
         }
     }
 
+    async getParticipants(req, res) {
+        try {
+            const participants = await advertService.getParticipantsWithUsers(req.params.id, req.user);
+            res.json({ success: true, participants });
+        } catch (error) {
+            res.status(error.status || 500).json({ success: false, message: error.message });
+        }
+    }
+
     async delete(req, res) {
         try {
             await advertService.deleteAdvert(req.params.id, req.user, req.user.isAdmin);

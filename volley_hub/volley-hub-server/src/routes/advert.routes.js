@@ -13,6 +13,7 @@ router.get('/:id', optionalAuth, advertController.getById);
 router.post('/', authMiddleware, validateAdvert, advertController.create);
 router.put('/:id', authMiddleware, validateAdvert, advertController.update);
 router.delete('/:id', authMiddleware, advertController.delete);
+router.get('/:id/participants', authMiddleware, advertController.getParticipants);
 router.post('/:id/subscribe', authMiddleware, advertController.subscribe);
 router.post('/:id/unsubscribe', authMiddleware, advertController.unsubscribe);
 router.post('/:id/subscribe-waiting', authMiddleware, advertController.subscribeToWaiting);
