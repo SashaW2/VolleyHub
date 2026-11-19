@@ -5,6 +5,7 @@ import Button from '../common/Button/Button';
 import Input from '../common/Input/Input';
 import ToggleButton from '../common/ToggleButton/ToggleButton';
 import advertService from '../../services/advertService';
+import locationService from '../../services/locationService';
 import styles from './FilterSection.module.css';
 
 const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
@@ -27,6 +28,7 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
     });
 
     const [addressError, setAddressError] = useState('');
+    const [validatingAddress, setValidatingAddress] = useState(false);
     const [streetSuggestions, setStreetSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [allStreets, setAllStreets] = useState([]);
@@ -176,7 +178,7 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
         }
     };
 
-    const handleApply = () => {
+    const handleApply = async () => {
         if (filters.useNearestLocations && !filters.userAddress.trim()) {
             setAddressError(t('addressRequired'));
             return;
@@ -189,7 +191,24 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
             endTime: normalizeTime('endTime', filters.endTime),
             levels: Array.isArray(filters.levels) ? filters.levels : []
         };
-        if (filtersToSend.startTime !== filters.startTime || filtersToSend.endTime !== filters.endTime) {
+
+        // Как и при создании объявления, отправляем адрес на проверку серверу
+        // и в фильтрах показываем уже нормализованный полный адрес.
+        if (filtersToSend.useNearestLocations) {
+            setValidatingAddress(true);
+            try {
+                filtersToSend.userAddress = await locationService.validateAddress(filtersToSend.userAddress.trim());
+            } catch (e) {
+                setAddressError(e?.message || t('addressInvalid'));
+                setValidatingAddress(false);
+                return;
+            }
+            setValidatingAddress(false);
+        }
+
+        if (filtersToSend.startTime !== filters.startTime ||
+            filtersToSend.endTime !== filters.endTime ||
+            filtersToSend.userAddress !== filters.userAddress) {
             setFilters(filtersToSend);
         }
         onApplyFilters(filtersToSend);
@@ -360,7 +379,7 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
 
             <div className={styles.filterActions}>
                 <Button variant="outline" size="small" onClick={handleClear}>{t('clear')}</Button>
-                <Button size="small" onClick={handleApply}>{t('apply')}</Button>
+                <Button size="small" onClick={handleApply} loading={validatingAddress}>{t('apply')}</Button>
             </div>
         </div>
     );

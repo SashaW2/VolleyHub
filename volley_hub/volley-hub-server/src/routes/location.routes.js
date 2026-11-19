@@ -23,4 +23,20 @@ router.post('/geocode', async (req, res) => {
     }
 });
 
+router.post('/validate', async (req, res) => {
+    try {
+        const { address } = req.body;
+        const validation = await locationService.validateAddress(address);
+
+        if (!validation.isValid) {
+            return res.status(400).json({ success: false, message: validation.errorMessage });
+        }
+
+        res.json({ success: true, normalizedAddress: validation.normalizedAddress });
+    } catch (error) {
+        console.error('Address validation error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;

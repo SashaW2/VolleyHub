@@ -44,7 +44,7 @@ const getAdvertGroups = (adverts) => {
     return Array.from(groups.values());
 };
 
-const NearestMapModal = ({ isOpen, onClose, adverts, userCoords, onViewAdvert }) => {
+const NearestMapModal = ({ isOpen, onClose, adverts, userCoords, userAddress, onViewAdvert }) => {
     const { t } = useLanguage();
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
@@ -86,9 +86,12 @@ const NearestMapModal = ({ isOpen, onClose, adverts, userCoords, onViewAdvert })
                 mapInstanceRef.current = map;
 
                 if (userCoords) {
+                    const youAreHere = userAddress
+                        ? `${t('mapYouAreHere')}: ${userAddress}`
+                        : t('mapYouAreHere');
                     map.geoObjects.add(new window.ymaps.Placemark(
                         [userCoords.lat, userCoords.lon],
-                        { hintContent: 'Вы здесь', balloonContent: 'Вы здесь' },
+                        { hintContent: youAreHere, balloonContent: youAreHere },
                         { preset: 'islands#blueHomeIcon' }
                     ));
                 }
@@ -152,7 +155,7 @@ const NearestMapModal = ({ isOpen, onClose, adverts, userCoords, onViewAdvert })
                 mapInstanceRef.current = null;
             }
         };
-    }, [isOpen, adverts, userCoords, t]);
+    }, [isOpen, adverts, userCoords, userAddress, t]);
 
     useEffect(() => {
         if (loading) return;

@@ -231,6 +231,7 @@ export const LanguageProvider = ({ children }) => {
             mapDistance: 'Расстояние',
             mapTop: 'Топ',
             mapViewAdvert: 'Смотреть объявление',
+            mapYouAreHere: 'Вы здесь',
             mapClose: 'Закрыть'
         },
         en: {
@@ -448,6 +449,7 @@ export const LanguageProvider = ({ children }) => {
             mapDistance: 'Distance',
             mapTop: 'Top',
             mapViewAdvert: 'View advert',
+            mapYouAreHere: 'You are here',
             mapClose: 'Close'
         }
     };

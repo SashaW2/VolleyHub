@@ -110,11 +110,11 @@ class LocationService {
         try {
             const validation = await this.validateAddress(userAddress);
             if (!validation.isValid) {
-                return { adverts: [], userCoords: null };
+                return { adverts: [], userCoords: null, userAddress: null };
             }
 
             const userCoords = await this.getAddressCoordinates(validation.normalizedAddress);
-            if (!userCoords) return { adverts: [], userCoords: null };
+            if (!userCoords) return { adverts: [], userCoords: null, userAddress: null };
 
             const advertsWithDistance = [];
 
@@ -136,11 +136,12 @@ class LocationService {
 
             return {
                 adverts: advertsWithDistance.slice(0, count),
-                userCoords
+                userCoords,
+                userAddress: validation.normalizedAddress
             };
         } catch (error) {
             console.error('Error getting nearest adverts:', error.message);
-            return { adverts: [], userCoords: null };
+            return { adverts: [], userCoords: null, userAddress: null };
         }
     }
 

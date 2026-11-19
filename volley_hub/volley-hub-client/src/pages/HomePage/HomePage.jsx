@@ -48,6 +48,7 @@ const HomePage = () => {
     const [isMapOpen, setIsMapOpen] = useState(false);
     const [mapAdverts, setMapAdverts] = useState([]);
     const [mapUserCoords, setMapUserCoords] = useState(null);
+    const [mapUserAddress, setMapUserAddress] = useState('');
     const [mapBusy, setMapBusy] = useState(false);
 
     const [prevAuthState, setPrevAuthState] = useState(isAuthenticated);
@@ -225,7 +226,18 @@ const HomePage = () => {
                     if (response && response.adverts) {
                         setAdverts(response.adverts);
                         setUserCoords(response.userCoords || null);
+                        setMapUserAddress(response.userAddress || activeFilters.userAddress || '');
                         setLoading(false);
+
+                        // Сервер возвращает проверенный полный адрес — сохраняем именно его,
+                        // чтобы в фильтрах отображался не сырой ввод пользователя.
+                        if (response.userAddress && response.userAddress !== activeFilters.userAddress) {
+                            const normalizedFilters = { ...activeFilters, userAddress: response.userAddress };
+                            setCurrentFilters(normalizedFilters);
+                            if (isAuthenticated) {
+                                localStorage.setItem('homePageFilters', JSON.stringify(normalizedFilters));
+                            }
+                        }
                         return;
                     }
             }
@@ -329,6 +341,7 @@ const HomePage = () => {
             }
             setMapAdverts(list);
             setMapUserCoords(response.userCoords || null);
+            setMapUserAddress(response.userAddress || filtersWithNearest.userAddress || '');
             setIsMapOpen(true);
         } finally {
             setMapBusy(false);
@@ -345,10 +358,17 @@ const HomePage = () => {
     };
 
     const handleAddressConfirm = async (address) => {
+        let normalizedAddress;
+        try {
+            normalizedAddress = await locationService.validateAddress(address);
+        } catch (e) {
+            throw new Error(e?.message || t('addressInvalid'));
+        }
+
         const updatedFilters = {
             ...(currentFilters || getEmptyFilters()),
             useNearestLocations: true,
-            userAddress: address
+            userAddress: normalizedAddress
         };
 
         setCurrentFilters(updatedFilters);
@@ -718,6 +738,7 @@ const HomePage = () => {
                 onClose={() => setIsMapOpen(false)}
                 adverts={mapAdverts}
                 userCoords={mapUserCoords}
+                userAddress={mapUserAddress}
             />
 
             <Modal

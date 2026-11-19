@@ -130,6 +130,7 @@ class AdvertService {
                 });
 
                 adverts._userCoords = result.userCoords;
+                adverts._userAddress = result.userAddress;
             }
 
             return adverts || [];

@@ -11,6 +11,15 @@ class LocationService {
         }
     }
 
+    async validateAddress(address) {
+        try {
+            const response = await api.post('/location/validate', { address });
+            return response.data.normalizedAddress;
+        } catch (error) {
+            throw error.response?.data || { message: 'Не удалось проверить адрес' };
+        }
+    }
+
     async getAddressByCoords(lat, lon) {
         try {
             const response = await api.post('/location/reverse', { lat, lon });
