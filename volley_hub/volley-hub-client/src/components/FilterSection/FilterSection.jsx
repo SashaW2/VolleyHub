@@ -164,8 +164,6 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
 
     const handleTimeChange = (field, event) => {
         const normalized = normalizeTime(field, event.target.value);
-        // Нативный input[type=time] можно очистить до "--:--", а состояние при этом
-        // остаётся прежним и React не перерисовывает поле — возвращаем значение в DOM вручную.
         event.target.value = normalized;
         setFilters(prev => ({ ...prev, [field]: normalized }));
     };
@@ -192,8 +190,6 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
             levels: Array.isArray(filters.levels) ? filters.levels : []
         };
 
-        // Как и при создании объявления, отправляем адрес на проверку серверу
-        // и в фильтрах показываем уже нормализованный полный адрес.
         if (filtersToSend.useNearestLocations) {
             setValidatingAddress(true);
             try {

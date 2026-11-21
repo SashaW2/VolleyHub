@@ -7,6 +7,7 @@ import Input from '../../components/common/Input/Input';
 import PhoneInput from '../../components/common/PhoneInput/PhoneInput';
 import PasswordInput from '../../components/common/PasswordInput/PasswordInput';
 import ToggleButton from '../../components/common/ToggleButton/ToggleButton';
+import telegramService from '../../services/telegramService';
 import styles from './ProfilePage.module.css';
 
 const ProfilePage = () => {
@@ -95,6 +96,7 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(false);
     const [loadingPassword, setLoadingPassword] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
+    const [telegram, setTelegram] = useState({ linked: false, username: '', paused: false, loading: false, toggling: false, error: '' });
     const levels = ['D1', 'D2', 'D3', 'D4', 'D4Plus'];
 
     const validateName = useCallback((name) => {
@@ -161,6 +163,74 @@ const ProfilePage = () => {
             setPasswordErrors([t('passwordsDoNotMatch')]);
         }
     }, [language, t, profile.name, profile.email, profile.phone, profile.gameLevel, passwords.new, passwords.confirm, validateName, validateEmail, validatePhone, validateGameLevel, validatePasswordStrength]);
+
+    const loadTelegramStatus = useCallback(async () => {
+        try {
+            const status = await telegramService.getStatus();
+            setTelegram(prev => ({
+                ...prev,
+                linked: Boolean(status.linked),
+                username: status.username || '',
+                paused: Boolean(status.paused),
+                error: ''
+            }));
+        } catch (err) {
+            setTelegram(prev => ({ ...prev, error: err.message || '' }));
+        }
+    }, []);
+
+    useEffect(() => {
+        loadTelegramStatus();
+        const handleFocus = () => loadTelegramStatus();
+        window.addEventListener('focus', handleFocus);
+        return () => window.removeEventListener('focus', handleFocus);
+    }, [loadTelegramStatus]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const es = new EventSource(`/api/notifications/stream?token=${encodeURIComponent(token)}`);
+        es.addEventListener('telegram', () => loadTelegramStatus());
+        return () => es.close();
+    }, [loadTelegramStatus]);
+
+    const handleTelegramLink = async () => {
+        setTelegram(prev => ({ ...prev, loading: true, error: '' }));
+        try {
+            const url = await telegramService.createLink();
+            window.open(url, '_blank', 'noopener,noreferrer');
+        } catch (err) {
+            setTelegram(prev => ({ ...prev, error: err.message || t('telegramLinkError') }));
+        } finally {
+            setTelegram(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    const handleTelegramToggle = async () => {
+        const enabled = telegram.paused;
+        setTelegram(prev => ({ ...prev, toggling: true, error: '' }));
+        try {
+            const result = await telegramService.setNotifications(enabled);
+            setTelegram(prev => ({ ...prev, linked: true, paused: !result.enabled }));
+        } catch (err) {
+            setTelegram(prev => ({ ...prev, error: err.message || t('telegramLinkError') }));
+        } finally {
+            setTelegram(prev => ({ ...prev, toggling: false }));
+        }
+    };
+
+    const handleTelegramUnlink = async () => {
+        setTelegram(prev => ({ ...prev, loading: true, error: '' }));
+        try {
+            await telegramService.unlink();
+            setTelegram(prev => ({ ...prev, linked: false, username: '', paused: false }));
+        } catch (err) {
+            setTelegram(prev => ({ ...prev, error: err.message || t('telegramLinkError') }));
+        } finally {
+            setTelegram(prev => ({ ...prev, loading: false }));
+        }
+    };
 
     const handleGeneratePassword = () => {
         const newPassword = generateRandomPassword();
@@ -460,6 +530,59 @@ const ProfilePage = () => {
                                     />
                                 </div>
                             </div>
+
+                            <div className={`${styles.settingItem} ${styles.telegramItem}`}>
+                                <div className={styles.telegramText}>
+                                    <span className={styles.settingLabel}>{t('telegramTitle')}</span>
+                                    <div className={styles.telegramStatusRow}>
+                                        <span
+                                            className={`${styles.telegramDot} ${telegram.linked
+                                                ? (telegram.paused ? styles.telegramDotPaused : styles.telegramDotOn)
+                                                : ''}`}
+                                            aria-hidden="true"
+                                        />
+                                        <span className={styles.telegramStatusText}>
+                                            {telegram.linked
+                                                ? (telegram.paused ? t('telegramPaused') : t('telegramLinked'))
+                                                : t('telegramNotLinked')}
+                                        </span>
+                                        {telegram.linked && telegram.username && (
+                                            <span className={styles.telegramUsername}>@{telegram.username}</span>
+                                        )}
+                                    </div>
+                                </div>
+                                {telegram.linked ? (
+                                    <div className={styles.telegramActions}>
+                                        <Button
+                                            size="small"
+                                            variant="secondary"
+                                            className={styles.telegramToggle}
+                                            onClick={handleTelegramToggle}
+                                            loading={telegram.toggling}
+                                        >
+                                            {telegram.paused ? t('telegramResume') : t('telegramPause')}
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            variant="danger"
+                                            onClick={handleTelegramUnlink}
+                                            loading={telegram.loading}
+                                        >
+                                            {t('telegramUnlink')}
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <Button
+                                        size="small"
+                                        variant="primary"
+                                        onClick={handleTelegramLink}
+                                        loading={telegram.loading}
+                                    >
+                                        {t('telegramLink')}
+                                    </Button>
+                                )}
+                            </div>
+                            {telegram.error && <span className={styles.fieldError}>{telegram.error}</span>}
                         </div>
 
                         <div className={styles.actions}>

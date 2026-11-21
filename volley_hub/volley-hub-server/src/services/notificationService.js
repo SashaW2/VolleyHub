@@ -1,5 +1,6 @@
 const notificationRepository = require('../repositories/notificationRepository');
 const sseHub = require('../utils/sseHub');
+const telegramService = require('./telegramService');
 
 class NotificationService {
     async sendNotification(userId, text, type = 'system') {
@@ -15,6 +16,10 @@ class NotificationService {
             text,
             notificationType: type,
             createdDate: notification?.CreatedDate || new Date().toISOString()
+        });
+
+        telegramService.sendToUser(userId, text, { notificationType: type }).catch(error => {
+            console.error('Telegram notification error:', error.message);
         });
 
         return notification;
@@ -36,6 +41,10 @@ class NotificationService {
                 createdDate: new Date().toISOString()
             });
         }
+
+        telegramService.sendBulkToUsers(userIds, text, { notificationType: type }).catch(error => {
+            console.error('Telegram bulk notification error:', error.message);
+        });
 
         return created;
     }

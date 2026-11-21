@@ -10,8 +10,11 @@ const userRoutes = require('./routes/user.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const locationRoutes = require('./routes/location.routes');
 const adminRoutes = require('./routes/admin.routes');
+const telegramRoutes = require('./routes/telegram.routes');
 
 const app = express();
+
+app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,6 +34,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/telegram', telegramRoutes);
 
 app.get('/health', (req, res) => {
     res.json({ success: true, message: 'Server is running' });

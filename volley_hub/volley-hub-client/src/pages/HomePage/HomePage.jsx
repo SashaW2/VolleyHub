@@ -229,8 +229,6 @@ const HomePage = () => {
                         setMapUserAddress(response.userAddress || activeFilters.userAddress || '');
                         setLoading(false);
 
-                        // Сервер возвращает проверенный полный адрес — сохраняем именно его,
-                        // чтобы в фильтрах отображался не сырой ввод пользователя.
                         if (response.userAddress && response.userAddress !== activeFilters.userAddress) {
                             const normalizedFilters = { ...activeFilters, userAddress: response.userAddress };
                             setCurrentFilters(normalizedFilters);

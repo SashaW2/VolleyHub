@@ -163,6 +163,98 @@
     gap: 0.5rem;
 }
 
+.telegramItem {
+    gap: 1rem;
+    border-bottom: none;
+}
+
+.telegramActions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.telegramActions .telegramToggle {
+    border: 2px solid #E2E8F0;
+    border-radius: 2rem;
+    background: white;
+    color: #475569;
+}
+
+.telegramActions .telegramToggle:hover:not(:disabled) {
+    border-color: #667eea;
+    background: white;
+    color: #667eea;
+    transform: none;
+    box-shadow: none;
+}
+
+[data-theme="dark"] .telegramActions .telegramToggle {
+    background: #1A2133;
+    border-color: #2A3448;
+    color: #A0A8C8;
+}
+
+[data-theme="dark"] .telegramActions .telegramToggle:hover:not(:disabled) {
+    border-color: #667eea;
+    background: #1A2133;
+    color: #667eea;
+}
+
+.telegramText {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.telegramStatusRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+}
+
+.telegramDot {
+    flex-shrink: 0;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background: #94A3B8;
+}
+
+.telegramDotOn {
+    background: #22C55E;
+}
+
+.telegramDotPaused {
+    background: #F59E0B;
+}
+
+.telegramStatusText {
+    color: #64748B;
+}
+
+[data-theme="dark"] .telegramStatusText {
+    color: #A0A8C8;
+}
+
+.telegramUsername {
+    padding: 0.1rem 0.45rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: #F1F5F9;
+    color: #475569;
+}
+
+[data-theme="dark"] .telegramUsername {
+    background: #232C40;
+    color: #A0A8C8;
+}
+
 .actions {
     display: flex;
     gap: 1rem;
@@ -276,7 +368,6 @@
     color: #5a67d8;
 }
 
-/* Стили для кнопок */
 .form button[type="submit"],
 .passwordForm button[type="submit"],
 .actions button {
@@ -362,6 +453,18 @@
         width: 100%;
     }
     .settingControls button {
+        flex: 1;
+    }
+    .telegramItem {
+        align-items: stretch;
+    }
+    .telegramItem > button {
+        width: 100%;
+    }
+    .telegramActions {
+        width: 100%;
+    }
+    .telegramActions > button {
         flex: 1;
     }
 }

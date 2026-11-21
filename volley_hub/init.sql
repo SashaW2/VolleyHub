@@ -146,6 +146,32 @@ END
 GO
 
 -- =====================================================
+-- Таблица 7: TelegramLinks (привязка аккаунта к Telegram)
+-- =====================================================
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TelegramLinks]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE TelegramLinks (
+        Id INT PRIMARY KEY IDENTITY(1,1),
+        UserId INT NOT NULL,
+        ChatId NVARCHAR(32) NOT NULL,
+        Username NVARCHAR(64) NULL,
+        LinkedDate DATETIMEOFFSET NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+        NotificationsEnabled BIT NOT NULL DEFAULT 1,
+        CONSTRAINT UQ_TelegramLinks_UserId UNIQUE (UserId),
+        CONSTRAINT UQ_TelegramLinks_ChatId UNIQUE (ChatId),
+        CONSTRAINT FK_TelegramLinks_Users FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+    );
+END
+GO
+
+-- Добавляем колонку NotificationsEnabled в уже созданную таблицу TelegramLinks
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[TelegramLinks]') AND name = 'NotificationsEnabled')
+BEGIN
+    ALTER TABLE TelegramLinks ADD NotificationsEnabled BIT NOT NULL DEFAULT 1;
+END
+GO
+
+-- =====================================================
 -- Индексы для оптимизации запросов
 -- =====================================================
 

@@ -9,7 +9,6 @@ const api = axios.create({
     },
 });
 
-// Перехватчик для добавления токена
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -23,15 +22,12 @@ api.interceptors.request.use(
     }
 );
 
-// Перехватчик для обработки ошибок
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Получаем текущий путь
             const currentPath = window.location.pathname;
 
-            // Не делаем редирект только если мы уже на странице логина или регистрации
             if (currentPath !== '/login' && currentPath !== '/register') {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');

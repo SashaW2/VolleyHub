@@ -1,4 +1,3 @@
-// src/controllers/statisticsController.js
 const advertRepository = require('../repositories/advertRepository');
 const userRepository = require('../repositories/userRepository');
 

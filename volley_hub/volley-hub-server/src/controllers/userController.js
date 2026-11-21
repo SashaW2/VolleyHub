@@ -1,5 +1,6 @@
 const userRepository = require('../repositories/userRepository');
 const authService = require('../services/authService');
+const telegramService = require('../services/telegramService');
 const bcrypt = require('bcryptjs');
 
 class UserController {
@@ -101,6 +102,15 @@ class UserController {
 
     async deleteAccount(req, res) {
         try {
+            try {
+                await telegramService.unlinkUser(
+                    req.user.id,
+                    'Аккаунт Volley Hub был удалён, поэтому этот Telegram отвязан от него. Уведомления больше не приходят.'
+                );
+            } catch (telegramError) {
+                console.error('Telegram unlink on account delete error:', telegramError.message);
+            }
+
             await userRepository.delete(req.user.id);
             res.json({ success: true, message: 'Аккаунт удален' });
         } catch (error) {

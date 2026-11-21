@@ -5,8 +5,8 @@ const AdvertParticipant = require('./AdvertParticipant');
 const AdvertSubscriber = require('./AdvertSubscriber');
 const Notification = require('./Notification');
 const Role = require('./Role');
+const TelegramLink = require('./TelegramLink');
 
-// Associations
 User.belongsTo(Role, { foreignKey: 'roleId' });
 Role.hasMany(User, { foreignKey: 'roleId' });
 
@@ -15,6 +15,9 @@ Advert.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasMany(Notification, { foreignKey: 'userId' });
 Notification.belongsTo(User, { foreignKey: 'userId' });
+
+User.hasOne(TelegramLink, { foreignKey: 'userId', onDelete: 'CASCADE' });
+TelegramLink.belongsTo(User, { foreignKey: 'userId' });
 
 Advert.hasMany(AdvertParticipant, { foreignKey: 'advertId', onDelete: 'CASCADE' });
 AdvertParticipant.belongsTo(Advert, { foreignKey: 'advertId' });
@@ -35,5 +38,6 @@ module.exports = {
     AdvertParticipant,
     AdvertSubscriber,
     Notification,
-    Role
+    Role,
+    TelegramLink
 };

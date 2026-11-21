@@ -4,6 +4,7 @@ const cron = require('node-cron');
 const advertService = require('./src/services/advertService');
 const advertRepository = require('./src/repositories/advertRepository');
 const notificationService = require('./src/services/notificationService');
+const telegramService = require('./src/services/telegramService');
 require('dotenv').config();
 
 const PORT = 5000;
@@ -12,6 +13,13 @@ const startServer = async () => {
     try {
         await sequelize.authenticate();
         await sequelize.sync({ alter: false });
+
+        await telegramService.init();
+
+        process.on('SIGINT', () => {
+            telegramService.stopPolling();
+            process.exit(0);
+        });
 
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
@@ -61,7 +69,11 @@ const startServer = async () => {
                             const m = totalMinutes % 60;
                             const timeInfo = h > 0 ? `${h} час. ${m} мин.` : `${m} мин.`;
 
-                            let notificationText = `Игра начнётся через ${timeInfo}!\nАдрес: ${advert.address}\nНачало в ${displayTime}`;
+                            const dateStr = String(advert.date).split('T')[0].split('-').reverse().join('.');
+                            const endTimeMatch = String(advert.endTime).match(/(\d{2}):(\d{2})/);
+                            const endTimeStr = endTimeMatch ? `${endTimeMatch[1]}:${endTimeMatch[2]}` : String(advert.endTime);
+
+                            let notificationText = `Игра начнётся через ${timeInfo}!\nАдрес: ${advert.address}\nДата: ${dateStr}\nВремя: ${displayTime} - ${endTimeStr}`;
 
                             if (participantIds.length < advert.peopleCount) {
                                 notificationText += `\nУчастников: ${participantIds.length}/${advert.peopleCount}\nВы можете отписаться в течение следующего часа`;

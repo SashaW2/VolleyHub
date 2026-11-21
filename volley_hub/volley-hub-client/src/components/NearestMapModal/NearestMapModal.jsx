@@ -166,8 +166,6 @@ const NearestMapModal = ({ isOpen, onClose, adverts, userCoords, userAddress, on
 
         pendingBoundsRef.current = null;
 
-        // Карта создаётся в скрытом контейнере, поэтому размеры нужно пересчитать
-        // после появления, иначе подгонка границ может дать мировой масштаб.
         map.container.fitToViewport();
         map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 60 });
     }, [loading]);

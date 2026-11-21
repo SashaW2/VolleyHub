@@ -2,7 +2,6 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 
-// Функция преобразования уровня игры из строки в число
 const getGameLevelValue = (level) => {
     const levels = {
         'D1': 1,
@@ -14,7 +13,6 @@ const getGameLevelValue = (level) => {
     return levels[level] || 1;
 };
 
-// Функция преобразования числа в строку
 const getGameLevelName = (value) => {
     const levels = {
         1: 'D1',

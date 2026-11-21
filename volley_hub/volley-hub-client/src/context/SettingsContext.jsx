@@ -19,7 +19,6 @@ export const SettingsProvider = ({ children }) => {
         return localStorage.getItem('theme') || 'light';
     });
 
-    // Применяем тему к документу
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
         if (theme === 'dark') {
@@ -29,7 +28,6 @@ export const SettingsProvider = ({ children }) => {
         }
     }, [theme]);
 
-    // Применяем язык
     useEffect(() => {
         document.documentElement.setAttribute('lang', language);
     }, [language]);
@@ -44,7 +42,6 @@ export const SettingsProvider = ({ children }) => {
         localStorage.setItem('theme', newTheme);
     };
 
-    // Синхронизация настроек из БД
     const syncFromUser = (user) => {
         if (user) {
             if (user.language && user.language !== language) {

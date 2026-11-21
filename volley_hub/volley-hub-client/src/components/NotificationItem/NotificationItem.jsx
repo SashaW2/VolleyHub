@@ -27,7 +27,15 @@ const NotificationItem = ({ notification, onDelete, onMarkAsRead }) => {
         }
     };
 
+    const isFromAdmin = notification.NotificationType === 'admin'
+        || notification.Text?.startsWith('[АДМИН]')
+        || notification.Text?.startsWith('[Администратор]');
+
     const getNotificationIcon = () => {
+        if (isFromAdmin) {
+            return <FaShieldAlt className={styles.adminIcon} />;
+        }
+
         switch (notification.NotificationType) {
             case 'admin':
                 return <FaShieldAlt className={styles.adminIcon} />;
@@ -41,6 +49,10 @@ const NotificationItem = ({ notification, onDelete, onMarkAsRead }) => {
     };
 
     const getNotificationBadge = () => {
+        if (isFromAdmin) {
+            return <span className={styles.adminBadge}>{t('fromAdmin')}</span>;
+        }
+
         switch (notification.NotificationType) {
             case 'admin':
                 return <span className={styles.adminBadge}>{t('fromAdmin')}</span>;
@@ -54,8 +66,10 @@ const NotificationItem = ({ notification, onDelete, onMarkAsRead }) => {
     };
 
     const getDisplayText = () => {
-        if (notification.NotificationType === 'admin' && notification.Text?.startsWith('[АДМИН]')) {
-            return notification.Text.replace('[АДМИН] ', '');
+        if (isFromAdmin && notification.Text) {
+            return notification.Text
+                .replace(/^\[АДМИН\]\s*/, '')
+                .replace(/^\[Администратор\]\s*/, '');
         }
         return notification.Text;
     };

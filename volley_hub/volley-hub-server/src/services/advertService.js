@@ -2,6 +2,26 @@ const advertRepository = require('../repositories/advertRepository');
 const notificationService = require('./notificationService');
 const locationService = require('./locationService');
 
+const formatAdvertDate = (value) => {
+    if (!value) return '';
+    if (value instanceof Date) {
+        return value.toISOString().split('T')[0].split('-').reverse().join('.');
+    }
+    const [year, month, day] = String(value).split('T')[0].split('-');
+    return year && month && day ? `${day}.${month}.${year}` : String(value);
+};
+
+const formatAdvertTime = (value) => {
+    if (!value) return '';
+    if (value instanceof Date) {
+        const hours = String(value.getUTCHours()).padStart(2, '0');
+        const minutes = String(value.getUTCMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    const match = String(value).match(/(\d{2}):(\d{2})/);
+    return match ? `${match[1]}:${match[2]}` : String(value);
+};
+
 class AdvertService {
     async createAdvert(advertData) {
         const { address, date, startTime, endTime } = advertData;
@@ -311,7 +331,11 @@ class AdvertService {
 
             if (subscribers && subscribers.length > 0) {
                 const availableSpots = newPeopleCount - currentParticipantsCount;
-                const message = `В объявлении "${advert.address}" освободилось ${availableSpots} мест! Успейте записаться!`;
+                const message = `В объявлении освободилось ${availableSpots} мест!\n\n` +
+                    `Адрес: ${advert.address}\n` +
+                    `Дата: ${formatAdvertDate(advert.date)}\n` +
+                    `Время: ${formatAdvertTime(advert.startTime)} - ${formatAdvertTime(advert.endTime)}\n\n` +
+                    `Успейте записаться!`;
 
                 for (const subscriber of subscribers) {
                     const userId = subscriber.UserId || subscriber.userId;
@@ -340,11 +364,13 @@ class AdvertService {
                 let message = '';
 
                 if (isAdmin && userId === advert.userId) {
-                    message = `[Администратор] Ваше объявление было отредактировано\n\n`;
+                    message = `[Администратор]\n\nВаше объявление было отредактировано\n\n`;
                 } else {
                     message = `Объявление было отредактировано\n\n`;
                 }
-                message += `Адрес: ${advert.address}\n\n`;
+                message += `Адрес: ${advert.address}\n`;
+                message += `Дата: ${formatAdvertDate(advert.date)}\n`;
+                message += `Время: ${formatAdvertTime(advert.startTime)} - ${formatAdvertTime(advert.endTime)}\n\n`;
                 message += `Изменения:\n${changesList}\n\n`;
                 message += `Пожалуйста, проверьте актуальные данные в приложении.`;
 
@@ -419,17 +445,21 @@ class AdvertService {
 
             if (isAdminUser && advert.userId !== currentUser.id) {
                 if (userId === advert.userId) {
-                    message = `[Администратор] Ваше объявление по адресу "${advert.address}" было удалено`;
+                    message = `[Администратор]\n\nВаше объявление было удалено`;
                 } else {
-                    message = `Объявление по адресу "${advert.address}" было удалено`;
+                    message = `Объявление было удалено`;
                 }
             } else {
                 if (userId === advert.userId) {
                     continue;
                 } else {
-                    message = `Объявление по адресу "${advert.address}" было удалено его создателем`;
+                    message = `Объявление было удалено его создателем`;
                 }
             }
+
+            message += `\n\nАдрес: ${advert.address}\n`;
+            message += `Дата: ${formatAdvertDate(advert.date)}\n`;
+            message += `Время: ${formatAdvertTime(advert.startTime)} - ${formatAdvertTime(advert.endTime)}`;
 
             await notificationService.sendNotification(userId, message, 'system');
         }
@@ -553,7 +583,11 @@ class AdvertService {
         const participantsCount = await advertRepository.getParticipantsCount(advertId);
         if (participantsCount < advert.peopleCount) {
             const subscribers = await advertRepository.getSubscribers(advertId);
-            const message = `Освободилось место в объявлении "${advert.address}"! Успейте записаться!`;
+            const message = `Освободилось место в объявлении!\n\n` +
+                `Адрес: ${advert.address}\n` +
+                `Дата: ${formatAdvertDate(advert.date)}\n` +
+                `Время: ${formatAdvertTime(advert.startTime)} - ${formatAdvertTime(advert.endTime)}\n\n` +
+                `Успейте записаться!`;
 
             for (const subscriber of subscribers) {
                 const userId = subscriber.UserId || subscriber.userId;
