@@ -269,13 +269,16 @@ class TelegramService {
 
         if (Boolean(link.notificationsEnabled) !== enabled) {
             await link.update({ notificationsEnabled: enabled });
+            this.notifyStatusChanged(link);
 
-            await this.sendToChat(
+            this.sendToChat(
                 link.chatId,
                 enabled
                     ? 'Уведомления Volley Hub снова включены. Приостановить их можно в разделе «Профиль» на сайте или командой /stop.'
                     : 'Уведомления Volley Hub приостановлены в разделе «Профиль» на сайте. Включить их снова можно там же или командой /start.'
-            );
+            ).catch(error => {
+                console.error('Telegram status message error:', error.message);
+            });
         }
         return link;
     }
@@ -392,7 +395,15 @@ class TelegramService {
 
             if (status === 403) {
                 try {
+                    const blockedLink = await TelegramLink.findOne({ where: { chatId: String(chatId) } });
                     await TelegramLink.destroy({ where: { chatId: String(chatId) } });
+                    if (blockedLink) {
+                        sseHub.send(blockedLink.userId, 'telegram', {
+                            linked: false,
+                            username: '',
+                            paused: false
+                        });
+                    }
                 } catch (destroyError) {
                     console.error('Telegram unlink error:', destroyError.message);
                 }

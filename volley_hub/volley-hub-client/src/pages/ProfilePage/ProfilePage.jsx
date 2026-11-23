@@ -212,9 +212,16 @@ const ProfilePage = () => {
         setTelegram(prev => ({ ...prev, toggling: true, error: '' }));
         try {
             const result = await telegramService.setNotifications(enabled);
-            setTelegram(prev => ({ ...prev, linked: true, paused: !result.enabled }));
+            setTelegram(prev => ({
+                ...prev,
+                linked: result.linked !== false,
+                username: result.linked === false ? '' : prev.username,
+                paused: result.linked === false ? false : !result.enabled
+            }));
         } catch (err) {
-            setTelegram(prev => ({ ...prev, error: err.message || t('telegramLinkError') }));
+            const errorText = err.message || t('telegramLinkError');
+            await loadTelegramStatus();
+            setTelegram(prev => ({ ...prev, error: errorText }));
         } finally {
             setTelegram(prev => ({ ...prev, toggling: false }));
         }
