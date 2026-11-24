@@ -119,11 +119,8 @@ const AdminUsersPage = () => {
         if (!notificationText.trim()) return;
         try {
             await notificationService.sendToUser(selectedUser.id, notificationText);
-            setSendStatus({ type: 'success', text: 'Уведомление отправлено' });
             setNotificationText('');
-            setTimeout(() => {
-                handleCloseModal();
-            }, 1200);
+            handleCloseModal();
         } catch (error) {
             setSendStatus({ type: 'error', text: error.message || 'Ошибка отправки' });
         }

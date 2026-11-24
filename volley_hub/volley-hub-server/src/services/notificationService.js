@@ -72,6 +72,10 @@ class NotificationService {
         return await notificationRepository.markAllAsRead(userId);
     }
 
+    async deleteAllNotifications(userId) {
+        return await notificationRepository.deleteAllByUser(userId);
+    }
+
     async deleteNotification(notificationId, userId) {
         const notification = await notificationRepository.findById(notificationId);
         if (!notification) {

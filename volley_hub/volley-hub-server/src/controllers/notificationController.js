@@ -63,6 +63,15 @@ class NotificationController {
         }
     }
 
+    async deleteAll(req, res) {
+        try {
+            await notificationService.deleteAllNotifications(req.user.id);
+            res.json({ success: true, message: 'Все уведомления удалены' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
     async deleteNotification(req, res) {
         try {
             await notificationService.deleteNotification(req.params.id, req.user.id);

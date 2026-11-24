@@ -51,7 +51,7 @@ class NotificationRepository {
             const query = `
                 SELECT * FROM Notifications
                 WHERE UserId = ${userId}
-                ORDER BY CreatedDate DESC
+                ORDER BY IsRead ASC, CreatedDate DESC
             `;
             const [results] = await sequelize.query(query);
             return results;
@@ -105,6 +105,18 @@ class NotificationRepository {
             return results[0]?.count || 0;
         } catch (error) {
             console.error('Error in countUnread:', error);
+            throw error;
+        }
+    }
+
+    async deleteAllByUser(userId) {
+        try {
+            await sequelize.query('DELETE FROM Notifications WHERE UserId = ?', {
+                replacements: [userId]
+            });
+            return true;
+        } catch (error) {
+            console.error('Error in deleteAllByUser:', error);
             throw error;
         }
     }

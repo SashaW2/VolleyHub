@@ -46,6 +46,15 @@ class NotificationService {
         }
     }
 
+    async deleteAllNotifications() {
+        try {
+            const response = await api.delete('/notifications');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Ошибка удаления' };
+        }
+    }
+
     async sendToUser(userId, text) {
         try {
             const response = await api.post('/admin/notifications/send', { userId, text });

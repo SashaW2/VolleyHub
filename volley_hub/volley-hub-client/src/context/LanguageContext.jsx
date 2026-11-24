@@ -144,6 +144,8 @@ export const LanguageProvider = ({ children }) => {
             system: 'Системное',
             gameReminder: 'Напоминание',
             deleteNotification: 'Удалить уведомление',
+            deleteAllNotifications: 'Удалить все',
+            confirmDeleteAllNotifications: 'Удалить все уведомления?',
 
             // About
             aboutTitle: 'О приложении',
@@ -387,6 +389,8 @@ export const LanguageProvider = ({ children }) => {
             system: 'System',
             gameReminder: 'Reminder',
             deleteNotification: 'Delete notification',
+            deleteAllNotifications: 'Delete all',
+            confirmDeleteAllNotifications: 'Delete all notifications?',
 
             // About
             aboutTitle: 'About the app',

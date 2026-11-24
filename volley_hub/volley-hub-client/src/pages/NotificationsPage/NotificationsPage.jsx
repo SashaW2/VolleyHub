@@ -11,6 +11,7 @@ const NotificationsPage = () => {
     const { theme } = useTheme();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [deletingAll, setDeletingAll] = useState(false);
 
     const loadNotifications = useCallback(async (silent = false) => {
         try {
@@ -72,6 +73,21 @@ const NotificationsPage = () => {
         }
     };
 
+    const handleDeleteAll = async () => {
+        if (deletingAll) return;
+        if (!window.confirm(t('confirmDeleteAllNotifications'))) return;
+        try {
+            setDeletingAll(true);
+            await notificationService.deleteAllNotifications();
+            setNotifications([]);
+            window.dispatchEvent(new CustomEvent('notificationsChanged'));
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            setDeletingAll(false);
+        }
+    };
+
     if (loading) return <div className={styles.loading}>{t('loading')}</div>;
 
     return (
@@ -83,6 +99,15 @@ const NotificationsPage = () => {
                         {notifications.length > 0 && (
                             <button className={styles.markAllButton} onClick={handleMarkAllAsRead}>
                                 {t('markAllRead')}
+                            </button>
+                        )}
+                        {notifications.length > 0 && (
+                            <button
+                                className={styles.deleteAllButton}
+                                onClick={handleDeleteAll}
+                                disabled={deletingAll}
+                            >
+                                {t('deleteAllNotifications')}
                             </button>
                         )}
                         <FaBell className={styles.icon} />

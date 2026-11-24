@@ -64,6 +64,33 @@
     text-decoration: underline;
 }
 
+.deleteAllButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+[data-theme="light"] .deleteAllButton {
+    color: #EF4444;
+}
+
+[data-theme="dark"] .deleteAllButton {
+    color: #F87171;
+}
+
+.deleteAllButton:hover {
+    text-decoration: underline;
+}
+
+.deleteAllButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
 .notificationsList {
     display: flex;
     flex-direction: column;
