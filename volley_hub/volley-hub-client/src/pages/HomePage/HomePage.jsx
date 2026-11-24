@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaFilter, FaPlus, FaTimes, FaMapMarkedAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useFilters } from '../../hooks/useFilters';
 import { useCreatorModal } from '../../context/CreatorModalContext';
+import { useAdvertStream } from '../../context/AdvertStreamContext';
 import Button from '../../components/common/Button/Button';
 import Modal from '../../components/common/Modal/Modal';
 import AdvertCard from '../../components/AdvertCard/AdvertCard';
@@ -28,6 +29,19 @@ const getLevelLabel = (level) => {
     return map[level] || String(level);
 };
 
+const fetchNearestMapData = async (filtersWithNearest) => {
+    const response = await advertService.getAllAdverts({
+        ...filtersWithNearest,
+        useNearestLocations: true,
+        userAddress: filtersWithNearest.userAddress
+    });
+    return {
+        list: (response.adverts || []).filter(a => a && a._coords),
+        userCoords: response.userCoords || null,
+        userAddress: response.userAddress || filtersWithNearest.userAddress || ''
+    };
+};
+
 const HomePage = () => {
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
@@ -35,6 +49,7 @@ const HomePage = () => {
     const { theme } = useTheme();
     const { filters, showFilters, setShowFilters, applyFilters } = useFilters();
     const { openCreatorModal } = useCreatorModal();
+    const { lastEvent: advertsEvent } = useAdvertStream();
 
     const [activeTab, setActiveTab] = useState('all');
     const [adverts, setAdverts] = useState([]);
@@ -193,9 +208,12 @@ const HomePage = () => {
         return filtered;
     };
 
-    const loadAdverts = useCallback(async (filtersToUse = null) => {
-        setLoading(true);
-        setError(null);
+    const loadAdverts = useCallback(async (filtersToUse = null, options = {}) => {
+        const { silent = false } = options;
+        if (!silent) {
+            setLoading(true);
+            setError(null);
+        }
         try {
             if (!isInitialized || currentFilters === null) {
                 setLoading(false);
@@ -261,7 +279,9 @@ const HomePage = () => {
 
             setAdverts(advertsData);
         } catch (err) {
-            setError(err.message || t('loadingError'));
+            if (!silent) {
+                setError(err.message || t('loadingError'));
+            }
         } finally {
             setLoading(false);
         }
@@ -272,6 +292,63 @@ const HomePage = () => {
             loadAdverts();
         }
     }, [loadAdverts, isInitialized, currentFilters, activeTab]);
+
+    const loadAdvertsRef = useRef(loadAdverts);
+    const currentFiltersRef = useRef(currentFilters);
+    const isMapOpenRef = useRef(isMapOpen);
+    const mapRefreshSeqRef = useRef(0);
+    const advertsReloadTimerRef = useRef(null);
+    const handledAdvertsEventRef = useRef(advertsEvent?._receivedAt ?? null);
+
+    useEffect(() => {
+        loadAdvertsRef.current = loadAdverts;
+    }, [loadAdverts]);
+
+    useEffect(() => {
+        currentFiltersRef.current = currentFilters;
+    }, [currentFilters]);
+
+    useEffect(() => {
+        isMapOpenRef.current = isMapOpen;
+    }, [isMapOpen]);
+
+    useEffect(() => {
+        if (!advertsEvent || !isInitialized) return;
+
+        const eventId = advertsEvent._receivedAt ?? null;
+        if (eventId !== null && eventId === handledAdvertsEventRef.current) return;
+        handledAdvertsEventRef.current = eventId;
+
+        if (advertsReloadTimerRef.current) {
+            clearTimeout(advertsReloadTimerRef.current);
+        }
+
+        advertsReloadTimerRef.current = setTimeout(async () => {
+            advertsReloadTimerRef.current = null;
+            const activeFilters = currentFiltersRef.current;
+            loadAdvertsRef.current(activeFilters, { silent: true });
+
+            if (isMapOpenRef.current && activeFilters?.useNearestLocations && activeFilters.userAddress) {
+                const seq = ++mapRefreshSeqRef.current;
+                try {
+                    const mapData = await fetchNearestMapData(activeFilters);
+                    if (seq !== mapRefreshSeqRef.current) return;
+                    setMapAdverts(mapData.list);
+                    setMapUserCoords(mapData.userCoords);
+                    setMapUserAddress(mapData.userAddress);
+                } catch (e) {
+                    // оставляем текущие данные карты, если обновление не удалось
+                }
+            }
+        }, 400);
+
+        return () => {
+            if (advertsReloadTimerRef.current) {
+                clearTimeout(advertsReloadTimerRef.current);
+                advertsReloadTimerRef.current = null;
+            }
+        };
+    }, [advertsEvent, isInitialized]);
 
     const handleApplyFilters = (newFilters) => {
         setCurrentFilters(newFilters);
@@ -328,18 +405,13 @@ const HomePage = () => {
     const openMapWithFilters = async (filtersWithNearest) => {
         setMapBusy(true);
         try {
-            const response = await advertService.getAllAdverts({
-                ...filtersWithNearest,
-                useNearestLocations: true,
-                userAddress: filtersWithNearest.userAddress
-            });
-            const list = (response.adverts || []).filter(a => a && a._coords);
-            if (list.length === 0) {
+            const mapData = await fetchNearestMapData(filtersWithNearest);
+            if (mapData.list.length === 0) {
                 throw new Error(t('mapNoResults'));
             }
-            setMapAdverts(list);
-            setMapUserCoords(response.userCoords || null);
-            setMapUserAddress(response.userAddress || filtersWithNearest.userAddress || '');
+            setMapAdverts(mapData.list);
+            setMapUserCoords(mapData.userCoords);
+            setMapUserAddress(mapData.userAddress);
             setIsMapOpen(true);
         } finally {
             setMapBusy(false);
@@ -688,8 +760,10 @@ const HomePage = () => {
                         </div>
                     ) : adverts.length === 0 ? (
                         <div className={styles.emptyState}>
-                            <p className={styles.emptyMessage}>{t('noAdverts')}</p>
-                            {isAuthenticated && !isAdminUser && activeTab === 'all' && (
+                            <p className={styles.emptyMessage}>
+                                {activeChips.length > 0 ? t('noAdvertsFound') : t('noAdverts')}
+                            </p>
+                            {activeChips.length === 0 && isAuthenticated && !isAdminUser && activeTab === 'all' && (
                                 <Button onClick={() => navigate('/add-advert')}>{t('createFirst')}</Button>
                             )}
                         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaMapMarkerAlt, FaChartBar, FaMoneyBillWave, FaCalendarAlt, FaUsers, FaBan } from 'react-icons/fa';
 import adminService from '../../services/adminService';
+import { useAdvertStream } from '../../context/AdvertStreamContext';
 import styles from './AdminStatisticsPage.module.css';
 
 const AdminStatisticsPage = () => {
@@ -13,8 +14,15 @@ const AdminStatisticsPage = () => {
         blockedUsers: 0
     });
     const [loading, setLoading] = useState(true);
+    const { lastEvent: advertsEvent } = useAdvertStream();
 
     useEffect(() => { loadStatistics(); }, []);
+
+    // Обновляем статистику в реальном времени при любом изменении объявлений
+    useEffect(() => {
+        if (!advertsEvent) return;
+        loadStatistics();
+    }, [advertsEvent]);
 
     const loadStatistics = async () => {
         try {

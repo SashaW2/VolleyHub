@@ -1,6 +1,13 @@
 const advertRepository = require('../repositories/advertRepository');
 const notificationService = require('./notificationService');
 const locationService = require('./locationService');
+const sseHub = require('../utils/sseHub');
+
+const ADVERTS_CHANNEL = 'adverts';
+
+const notifyAdvertsChanged = (action, advertId, actorId = null) => {
+    sseHub.broadcast(ADVERTS_CHANNEL, 'adverts', { action, advertId, actorId });
+};
 
 const formatAdvertDate = (value) => {
     if (!value) return '';
@@ -89,7 +96,11 @@ class AdvertService {
         }
 
         const data = { ...advertData };
-        return await advertRepository.create(data);
+        const advert = await advertRepository.create(data);
+
+        notifyAdvertsChanged('created', advert?.id ?? advert?.Id ?? null, advertData.userId ?? null);
+
+        return advert;
     }
 
     async getAdvertById(id) {
@@ -404,6 +415,8 @@ class AdvertService {
             }
         }
 
+        notifyAdvertsChanged('updated', id, currentUser?.id ?? null);
+
         if (changes.length > 0) {
             const participants = await advertRepository.getParticipants(id);
             const participantsList = participants.map(p => p.UserId || p.userId).filter(uid => uid);
@@ -481,7 +494,9 @@ class AdvertService {
         const isPastEvent = eventDateTime !== null && eventDateTime < new Date();
 
         if (isPastEvent) {
-            return await advertRepository.delete(id);
+            const deleted = await advertRepository.delete(id);
+            notifyAdvertsChanged('deleted', id, currentUser?.id ?? null);
+            return deleted;
         }
 
         const participants = await advertRepository.getParticipants(id);
@@ -520,7 +535,9 @@ class AdvertService {
             await notificationService.sendNotification(userId, message, 'system');
         }
 
-        return await advertRepository.delete(id);
+        const deleted = await advertRepository.delete(id);
+        notifyAdvertsChanged('deleted', id, currentUser?.id ?? null);
+        return deleted;
     }
 
     async subscribeToAdvert(advertId, userId) {
@@ -555,6 +572,8 @@ class AdvertService {
         await advertRepository.addParticipant(advertId, userId);
         await advertRepository.removeSubscriber(advertId, userId);
 
+        notifyAdvertsChanged('participated', advertId, userId);
+
         return { success: true };
     }
 
@@ -584,6 +603,8 @@ class AdvertService {
         }
 
         await advertRepository.removeParticipant(advertId, userId);
+
+        notifyAdvertsChanged('left', advertId, userId);
 
         const participantsCount = await advertRepository.getParticipantsCount(advertId);
         if (participantsCount < advert.peopleCount) {
@@ -615,6 +636,7 @@ class AdvertService {
         }
 
         await advertRepository.addSubscriber(advertId, userId);
+        notifyAdvertsChanged('subscribed', advertId, userId);
         return { success: true };
     }
 
@@ -625,6 +647,7 @@ class AdvertService {
         }
 
         await advertRepository.removeSubscriber(advertId, userId);
+        notifyAdvertsChanged('unsubscribed', advertId, userId);
         return { success: true };
     }
 
@@ -653,6 +676,7 @@ class AdvertService {
             }
 
             await advertRepository.clearSubscribers(advertId);
+            notifyAdvertsChanged('subscriptions-cleared', advertId);
         }
     }
 

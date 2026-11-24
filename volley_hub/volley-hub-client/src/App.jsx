@@ -5,6 +5,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { CreatorModalProvider } from './context/CreatorModalContext';
 import { NotificationStreamProvider } from './context/NotificationStreamContext';
+import { AdvertStreamProvider } from './context/AdvertStreamContext';
 import Layout from './components/layout/Layout/Layout';
 import HomePage from './pages/HomePage/HomePage';
 import LoginPage from './pages/LoginPage/LoginPage';
@@ -88,9 +89,11 @@ function App() {
                 <LanguageProvider>
                     <AuthProvider>
                         <NotificationStreamProvider>
-                            <CreatorModalProvider>
-                                <AppRoutes />
-                            </CreatorModalProvider>
+                            <AdvertStreamProvider>
+                                <CreatorModalProvider>
+                                    <AppRoutes />
+                                </CreatorModalProvider>
+                            </AdvertStreamProvider>
                         </NotificationStreamProvider>
                     </AuthProvider>
                 </LanguageProvider>

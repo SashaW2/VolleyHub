@@ -7,6 +7,7 @@ const { validateAdvert } = require('../middlewares/validation');
 const router = express.Router();
 
 router.get('/', optionalAuth, advertController.getAll);
+router.get('/stream', advertController.stream);
 router.get('/my', authMiddleware, advertController.getMy);
 router.get('/participating', authMiddleware, advertController.getParticipating);
 router.get('/:id', optionalAuth, advertController.getById);

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useCreatorModal } from '../../context/CreatorModalContext';
+import { useAdvertStream } from '../../context/AdvertStreamContext';
 import Button from '../../components/common/Button/Button';
 import Modal from '../../components/common/Modal/Modal';
 import advertService from '../../services/advertService';
@@ -30,6 +31,7 @@ const AdvertDetailsPage = () => {
     const { t } = useLanguage();
     const { theme } = useTheme();
     const { openCreatorModal } = useCreatorModal();
+    const { lastEvent: advertsEvent } = useAdvertStream();
     const [advert, setAdvert] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -48,6 +50,9 @@ const AdvertDetailsPage = () => {
 
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
+    const placemarkRef = useRef(null);
+    const mapAddressRef = useRef(null);
+    const mapUpdateTokenRef = useRef(0);
 
     const isAdmin = user?.role === 'admin' || user?.isAdmin === true || user?.roleId === 2;
 
@@ -60,19 +65,56 @@ const AdvertDetailsPage = () => {
             if (mapInstanceRef.current) {
                 mapInstanceRef.current.destroy();
             }
+            mapInstanceRef.current = null;
+            placemarkRef.current = null;
+            mapAddressRef.current = null;
         };
     }, [id]);
 
-    const loadAdvert = async () => {
+    const loadAdvert = async ({ silent = false } = {}) => {
         try {
             const response = await advertService.getAdvertById(id);
             setAdvert(response.advert);
+            if (silent) {
+                setError('');
+            }
         } catch (err) {
-            setError(t('loadError'));
+            if (!silent) {
+                setError(t('loadError'));
+            }
         } finally {
-            setLoading(false);
+            if (!silent) {
+                setLoading(false);
+            }
         }
     };
+
+    const reloadParticipants = async () => {
+        try {
+            const response = await advertService.getParticipants(id);
+            setParticipants(response.participants || []);
+            setParticipantsError('');
+        } catch (err) {
+            setParticipantsError(err.message || t('participantsListError'));
+        }
+    };
+
+    useEffect(() => {
+        if (!advertsEvent || loading) return;
+
+        const isCurrentAdvert = advertsEvent.advertId == null || String(advertsEvent.advertId) === String(id);
+        if (!isCurrentAdvert) return;
+
+        if (advertsEvent.action === 'deleted') {
+            navigate('/');
+            return;
+        }
+
+        loadAdvert({ silent: true });
+        if (showParticipants) {
+            reloadParticipants();
+        }
+    }, [advertsEvent]);
 
     const loadYandexMaps = () => {
         return new Promise((resolve) => {
@@ -81,7 +123,8 @@ const AdvertDetailsPage = () => {
                 return;
             }
             const script = document.createElement('script');
-            script.src = `https://api-maps.yandex.ru/2.1/?lang=ru_RU`;
+            const apiKey = process.env.REACT_APP_YANDEX_MAPS_API_KEY;
+            script.src = `https://api-maps.yandex.ru/2.1/?lang=ru_RU${apiKey ? `&apikey=${apiKey}` : ''}`;
             script.async = true;
             script.onload = () => {
                 window.ymaps.ready(resolve);
@@ -113,22 +156,67 @@ const AdvertDetailsPage = () => {
 
             map.geoObjects.add(placemark);
             mapInstanceRef.current = map;
+            placemarkRef.current = placemark;
+            mapAddressRef.current = address;
         }
     };
 
+    const applyPlacemarkLocation = (lat, lon, address) => {
+        const placemark = placemarkRef.current;
+        const map = mapInstanceRef.current;
+        if (!placemark || !map) return false;
+
+        const coords = [lat, lon];
+        let moved = false;
+
+        if (placemark.geometry) {
+            if (typeof placemark.geometry.setCoordinates === 'function') {
+                placemark.geometry.setCoordinates(coords);
+                moved = true;
+            } else if (typeof placemark.geometry.set === 'function') {
+                placemark.geometry.set(coords);
+                moved = true;
+            }
+        }
+
+        if (moved) {
+            if (placemark.properties && typeof placemark.properties.set === 'function') {
+                placemark.properties.set({
+                    hintContent: address,
+                    balloonContent: address
+                });
+            }
+            return true;
+        }
+
+        // Если API не умеет перемещать геометрию — пересоздаём метку
+        map.geoObjects.remove(placemark);
+        const newPlacemark = new window.ymaps.Placemark(coords, {
+            hintContent: address,
+            balloonContent: address
+        }, {
+            preset: 'islands#redIcon',
+            draggable: false
+        });
+        map.geoObjects.add(newPlacemark);
+        placemarkRef.current = newPlacemark;
+        return true;
+    };
+
     const loadMap = async () => {
-        if (!advert?.address) return;
+        const address = advert?.address;
+        if (!address) return;
         if (showMap && mapInstanceRef.current) return;
 
         setMapLoading(true);
         setShowMap(true);
 
         try {
-            const coords = await locationService.getAddressCoordinates(advert.address);
+            const coords = await locationService.getAddressCoordinates(address);
             if (coords) {
                 await loadYandexMaps();
                 setTimeout(() => {
-                    initMap(coords.lat, coords.lon, advert.address);
+                    initMap(coords.lat, coords.lon, address);
                     setMapLoading(false);
                 }, 100);
             } else {
@@ -143,6 +231,40 @@ const AdvertDetailsPage = () => {
             setMapLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!showMap) return;
+
+        const address = advert?.address;
+        const map = mapInstanceRef.current;
+        if (!address || !map || mapAddressRef.current === address) return;
+
+        const token = ++mapUpdateTokenRef.current;
+        let cancelled = false;
+
+        const syncMapLocation = async () => {
+            try {
+                const coords = await locationService.getAddressCoordinates(address);
+                if (cancelled || token !== mapUpdateTokenRef.current || !coords) return;
+
+                const currentMap = mapInstanceRef.current;
+                if (!currentMap) return;
+
+                applyPlacemarkLocation(coords.lat, coords.lon, address);
+
+                currentMap.setCenter([coords.lat, coords.lon], 16, { duration: 300 });
+                mapAddressRef.current = address;
+            } catch (err) {
+                console.error('Error updating map location:', err);
+            }
+        };
+
+        syncMapLocation();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [showMap, advert?.address]);
 
     const toggleParticipants = async () => {
         if (showParticipants) {
@@ -169,6 +291,9 @@ const AdvertDetailsPage = () => {
             mapInstanceRef.current.destroy();
             mapInstanceRef.current = null;
         }
+        placemarkRef.current = null;
+        mapAddressRef.current = null;
+        mapUpdateTokenRef.current += 1;
         setShowMap(false);
     };
 

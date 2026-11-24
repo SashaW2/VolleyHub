@@ -35,6 +35,21 @@ class SseHub {
             }
         }
     }
+
+    broadcast(channel, event, data) {
+        const key = String(channel);
+        const set = this.clients.get(key);
+        if (!set || set.size === 0) return;
+
+        const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+        for (const res of set) {
+            try {
+                res.write(payload);
+            } catch (e) {
+                this.remove(key, res);
+            }
+        }
+    }
 }
 
 module.exports = new SseHub();

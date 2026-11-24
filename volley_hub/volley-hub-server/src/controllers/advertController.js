@@ -1,7 +1,34 @@
 const advertService = require('../services/advertService');
 const locationService = require('../services/locationService');
+const sseHub = require('../utils/sseHub');
+
+const ADVERTS_CHANNEL = 'adverts';
 
 class AdvertController {
+    stream(req, res) {
+        res.set({
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache, no-transform',
+            Connection: 'keep-alive',
+            'X-Accel-Buffering': 'no'
+        });
+        res.flushHeaders();
+        res.write('retry: 5000\n\n');
+
+        sseHub.add(ADVERTS_CHANNEL, res);
+
+        const heartbeat = setInterval(() => {
+            try {
+                res.write(': ping\n\n');
+            } catch (e) {
+            }
+        }, 25000);
+
+        req.on('close', () => {
+            clearInterval(heartbeat);
+            sseHub.remove(ADVERTS_CHANNEL, res);
+        });
+    }
     async create(req, res) {
         try {
             const { address, date, startTime, endTime, gameLevel, cost, peopleCount, description } = req.body;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAdvertStream } from '../../context/AdvertStreamContext';
 import Button from '../common/Button/Button';
 import Input from '../common/Input/Input';
 import ToggleButton from '../common/ToggleButton/ToggleButton';
@@ -10,6 +11,7 @@ import styles from './FilterSection.module.css';
 
 const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
     const { t } = useLanguage();
+    const { lastEvent: advertsEvent } = useAdvertStream();
 
     const [expandedSections, setExpandedSections] = useState({
         street: true, date: true, time: true, level: true, price: true, location: true
@@ -33,6 +35,8 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [allStreets, setAllStreets] = useState([]);
     const wrapperRef = useRef(null);
+    const streetsReloadTimerRef = useRef(null);
+    const handledAdvertsEventRef = useRef(advertsEvent?._receivedAt ?? null);
 
     const levels = [
         { label: 'D1', value: 1 },
@@ -103,6 +107,33 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
             console.error('Error loading streets:', error);
         }
     };
+
+    useEffect(() => {
+        if (!advertsEvent) return;
+
+        const action = advertsEvent.action;
+        if (action !== 'created' && action !== 'updated' && action !== 'deleted') return;
+
+        const eventId = advertsEvent._receivedAt ?? null;
+        if (eventId !== null && eventId === handledAdvertsEventRef.current) return;
+        handledAdvertsEventRef.current = eventId;
+
+        if (streetsReloadTimerRef.current) {
+            clearTimeout(streetsReloadTimerRef.current);
+        }
+
+        streetsReloadTimerRef.current = setTimeout(() => {
+            streetsReloadTimerRef.current = null;
+            loadUniqueStreets();
+        }, 400);
+
+        return () => {
+            if (streetsReloadTimerRef.current) {
+                clearTimeout(streetsReloadTimerRef.current);
+                streetsReloadTimerRef.current = null;
+            }
+        };
+    }, [advertsEvent]);
 
     const filterStreets = (query) => {
         if (!query.trim()) {
