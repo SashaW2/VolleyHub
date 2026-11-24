@@ -22,6 +22,61 @@ const formatAdvertTime = (value) => {
     return match ? `${match[1]}:${match[2]}` : String(value);
 };
 
+const getAdvertStartDateTime = (advert) => {
+    if (!advert || !advert.date || !advert.startTime) return null;
+
+    let dateStr;
+    if (advert.date instanceof Date) {
+        dateStr = advert.date.toISOString().split('T')[0];
+    } else {
+        dateStr = String(advert.date).split('T')[0];
+    }
+
+    let hours = 0, minutes = 0;
+    const rawTime = advert.startTime;
+
+    if (rawTime instanceof Date) {
+        hours = rawTime.getUTCHours();
+        minutes = rawTime.getUTCMinutes();
+    } else if (typeof rawTime === 'string') {
+        const match = rawTime.match(/(\d{1,2}):(\d{2})/);
+        if (!match) return null;
+        hours = parseInt(match[1], 10);
+        minutes = parseInt(match[2], 10);
+    } else {
+        return null;
+    }
+
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const eventDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+
+    return isNaN(eventDateTime.getTime()) ? null : eventDateTime;
+};
+
+const sortAdvertsByStartDateTime = (adverts) => {
+    const now = new Date();
+    const withStart = adverts.map(advert => ({
+        advert,
+        start: getAdvertStartDateTime(advert)
+    }));
+
+    withStart.sort((a, b) => {
+        const aPast = a.start ? a.start < now : true;
+        const bPast = b.start ? b.start < now : true;
+
+        if (aPast !== bPast) return aPast ? 1 : -1;
+
+        if (!a.start && !b.start) return 0;
+        if (!a.start) return 1;
+        if (!b.start) return -1;
+
+        const diff = a.start - b.start;
+        return aPast ? -diff : diff;
+    });
+
+    return withStart.map(item => item.advert);
+};
+
 class AdvertService {
     async createAdvert(advertData) {
         const { address, date, startTime, endTime } = advertData;
@@ -175,7 +230,8 @@ class AdvertService {
             adverts[i].dataValues.isSubscribed = isSubscribed;
             adverts[i].isSubscribed = isSubscribed;
         }
-        return adverts;
+
+        return sortAdvertsByStartDateTime(adverts);
     }
 
     async getParticipatingAdverts(userId) {
