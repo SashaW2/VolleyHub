@@ -112,7 +112,7 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
         if (!advertsEvent) return;
 
         const action = advertsEvent.action;
-        if (action !== 'created' && action !== 'updated' && action !== 'deleted' && action !== 'user-deleted') return;
+        if (!['created', 'updated', 'deleted', 'user-deleted', 'user-blocked', 'user-unblocked'].includes(action)) return;
 
         const eventId = advertsEvent._receivedAt ?? null;
         if (eventId !== null && eventId === handledAdvertsEventRef.current) return;

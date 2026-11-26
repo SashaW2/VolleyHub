@@ -328,7 +328,7 @@ const HomePage = () => {
         handledAdvertsEventRef.current = eventId;
 
         const action = String(advertsEvent.action || '');
-        if (action.startsWith('user-') && action !== 'user-deleted') return;
+        if (action.startsWith('user-') && !['user-deleted', 'user-blocked', 'user-unblocked'].includes(action)) return;
 
         if (advertsReloadTimerRef.current) {
             clearTimeout(advertsReloadTimerRef.current);

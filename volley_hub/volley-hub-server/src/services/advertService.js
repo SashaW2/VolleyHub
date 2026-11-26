@@ -105,6 +105,9 @@ class AdvertService {
 
     async getAdvertById(id) {
         const advert = await advertRepository.findById(id);
+        if (advert && advert.isHidden) {
+            return null;
+        }
         if (advert) {
             const participantsCount = await advertRepository.getParticipantsCount(id);
             advert.dataValues.participantsCount = participantsCount;

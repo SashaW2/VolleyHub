@@ -42,7 +42,7 @@ class AdvertRepository {
 
     async findAll(filters = {}) {
         try {
-            const where = {};
+            const where = { isHidden: false };
 
             if (filters.address) {
                 where.address = { [Op.like]: `%${filters.address}%` };
@@ -86,6 +86,18 @@ class AdvertRepository {
             where: { userId },
             order: [['date', 'ASC']]
         });
+    }
+
+    async hideByUserId(userId) {
+        return await Advert.update({ isHidden: true }, { where: { userId } });
+    }
+
+    async showByUserId(userId) {
+        return await Advert.update({ isHidden: false }, { where: { userId } });
+    }
+
+    async clearParticipants(advertId) {
+        return await AdvertParticipant.destroy({ where: { advertId } });
     }
 
     async update(id, advertData) {

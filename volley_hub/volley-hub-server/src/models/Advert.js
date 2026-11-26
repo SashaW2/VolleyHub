@@ -63,6 +63,12 @@ const Advert = sequelize.define('Advert', {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         field: 'TwoHourNotificationSent'
+    },
+    isHidden: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        field: 'IsHidden'
     }
 }, {
     tableName: 'Adverts',

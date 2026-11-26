@@ -112,6 +112,25 @@ const AdvertDetailsPage = () => {
             return;
         }
 
+        if (advertsEvent.action === 'user-blocked' || advertsEvent.action === 'user-unblocked') {
+            const updatedUserId = advertsEvent.actorId;
+            const isCreatorAffected = advert && updatedUserId != null &&
+                String(advert.userId) === String(updatedUserId);
+
+            if (isCreatorAffected) {
+                if (advertsEvent.action === 'user-blocked') {
+                    navigate('/');
+                    return;
+                }
+                loadAdvert({ silent: true });
+            }
+
+            if (showParticipants) {
+                reloadParticipants();
+            }
+            return;
+        }
+
         if (advertsEvent.action === 'user-updated' || advertsEvent.action === 'user-deleted') {
             const updatedUserId = advertsEvent.actorId;
 

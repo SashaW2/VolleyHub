@@ -289,6 +289,12 @@ class TelegramService {
 
         const removed = await TelegramLink.destroy({ where: { userId } });
         if (removed) {
+            sseHub.send(userId, 'telegram', {
+                linked: false,
+                username: '',
+                paused: false
+            });
+
             await this.sendToChat(
                 link.chatId,
                 message || 'Аккаунт Volley Hub отвязан от этого Telegram, уведомления больше не приходят.\nЧтобы привязать снова, нажмите «Привязать Telegram» в разделе «Профиль» на сайте.'

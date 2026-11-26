@@ -47,7 +47,7 @@ export const CreatorModalProvider = ({ children }) => {
         if (!creatorId) return;
         if (advertsEvent.actorId !== creatorId) return;
 
-        if (advertsEvent.action === 'user-deleted') {
+        if (advertsEvent.action === 'user-deleted' || advertsEvent.action === 'user-blocked') {
             setShowModal(false);
             setSelectedCreator(null);
             return;

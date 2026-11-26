@@ -2,8 +2,59 @@ const userRepository = require('../repositories/userRepository');
 const advertRepository = require('../repositories/advertRepository');
 const notificationRepository = require('../repositories/notificationRepository');
 const notificationService = require('../services/notificationService');
+const telegramService = require('../services/telegramService');
 const { notifyUsersChanged } = require('../utils/userEvents');
 const sseHub = require('../utils/sseHub');
+
+const formatAdvertDate = (value) => {
+    if (!value) return '';
+    if (value instanceof Date) {
+        return value.toISOString().split('T')[0].split('-').reverse().join('.');
+    }
+    const [year, month, day] = String(value).split('T')[0].split('-');
+    return year && month && day ? `${day}.${month}.${year}` : String(value);
+};
+
+const formatAdvertTime = (value) => {
+    if (!value) return '';
+    if (value instanceof Date) {
+        const hours = String(value.getUTCHours()).padStart(2, '0');
+        const minutes = String(value.getUTCMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    const match = String(value).match(/(\d{2}):(\d{2})/);
+    return match ? `${match[1]}:${match[2]}` : String(value);
+};
+
+const hideBlockedUserAdverts = async (userId) => {
+    const adverts = await advertRepository.findByUserId(userId);
+
+    for (const advert of adverts) {
+        const participants = await advertRepository.getParticipants(advert.id);
+        const subscribers = await advertRepository.getSubscribers(advert.id);
+
+        const recipientIds = [...new Set(
+            [...participants, ...subscribers]
+                .map(item => item.UserId || item.userId)
+                .filter(recipientId => recipientId && String(recipientId) !== String(userId))
+        )];
+
+        if (recipientIds.length > 0) {
+            const message = `Создатель объявления, на которое вы были записаны или подписаны, был заблокирован. Объявление скрыто.\n\n` +
+                `Адрес: ${advert.address}\n` +
+                `Дата: ${formatAdvertDate(advert.date)}\n` +
+                `Время: ${formatAdvertTime(advert.startTime)} - ${formatAdvertTime(advert.endTime)}\n\n` +
+                `Вы автоматически отписаны от этого объявления.`;
+
+            await notificationService.sendBulkNotification(recipientIds, message, 'system');
+        }
+
+        await advertRepository.clearParticipants(advert.id);
+        await advertRepository.clearSubscribers(advert.id);
+    }
+
+    await advertRepository.hideByUserId(userId);
+};
 
 class AdminController {
     async getAllUsers(req, res) {
@@ -91,7 +142,18 @@ class AdminController {
             }
 
             await userRepository.update(id, { isBlocked: true });
-            notifyUsersChanged('user-updated', id);
+
+            try {
+                await telegramService.unlinkUser(
+                    id,
+                    'Аккаунт Volley Hub был заблокирован администратором, поэтому этот Telegram отвязан от него. Уведомления больше не приходят.'
+                );
+            } catch (telegramError) {
+                console.error('Telegram unlink on user block error:', telegramError.message);
+            }
+
+            await hideBlockedUserAdverts(id);
+            notifyUsersChanged('user-blocked', id);
             sseHub.send(id, 'blocked', { message: 'Ваш аккаунт был заблокирован администратором' });
             res.json({ success: true, message: 'Пользователь заблокирован' });
         } catch (error) {
@@ -115,7 +177,8 @@ class AdminController {
             }
 
             await userRepository.update(id, { isBlocked: false });
-            notifyUsersChanged('user-updated', id);
+            await advertRepository.showByUserId(id);
+            notifyUsersChanged('user-unblocked', id);
             res.json({ success: true, message: 'Пользователь разблокирован' });
         } catch (error) {
             console.error('Error in unblockUser:', error);

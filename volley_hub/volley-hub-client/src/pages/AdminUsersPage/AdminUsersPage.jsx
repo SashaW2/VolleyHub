@@ -50,7 +50,7 @@ const AdminUsersPage = () => {
         if (eventId !== null && eventId === handledUsersEventRef.current) return;
         handledUsersEventRef.current = eventId;
 
-        if (!['user-created', 'user-updated', 'user-deleted'].includes(advertsEvent.action)) return;
+        if (!['user-created', 'user-updated', 'user-deleted', 'user-blocked', 'user-unblocked'].includes(advertsEvent.action)) return;
 
         if (usersReloadTimerRef.current) {
             clearTimeout(usersReloadTimerRef.current);

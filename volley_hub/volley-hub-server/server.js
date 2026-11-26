@@ -14,6 +14,13 @@ const startServer = async () => {
         await sequelize.authenticate();
         await sequelize.sync({ alter: false });
 
+        await sequelize.query(`
+            IF COL_LENGTH('Adverts', 'IsHidden') IS NULL
+            BEGIN
+                ALTER TABLE Adverts ADD IsHidden BIT NOT NULL DEFAULT 0;
+            END
+        `);
+
         await telegramService.init();
 
         process.on('SIGINT', () => {

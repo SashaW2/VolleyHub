@@ -89,6 +89,7 @@ BEGIN
         UserId INT NOT NULL,
         CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
         TwoHourNotificationSent BIT NOT NULL DEFAULT 0,
+        IsHidden BIT NOT NULL DEFAULT 0,
         FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
     );
 END
