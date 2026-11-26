@@ -167,8 +167,8 @@
 }
 
 .buttonGroup button {
-    flex: 1;
-    min-width: 80px;
+    flex: 1 1 auto;
+    min-width: fit-content;
 }
 
 .subscribeBtn {

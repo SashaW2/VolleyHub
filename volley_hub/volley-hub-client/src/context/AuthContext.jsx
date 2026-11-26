@@ -69,14 +69,20 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
-        authService.logout();
-        setUser(null);
-        localStorage.setItem('language', 'ru');
-        localStorage.setItem('theme', 'light');
-        document.documentElement.setAttribute('lang', 'ru');
-        document.documentElement.setAttribute('data-theme', 'light');
-        window.dispatchEvent(new CustomEvent('languageChange', { detail: 'ru' }));
+    const logout = (options = {}) => {
+        const { resetPreferences = true, ...logoutOptions } = options;
+        authService.logout(logoutOptions);
+        if (logoutOptions.redirect === false) {
+            setUser(null);
+        }
+        if (resetPreferences) {
+            localStorage.setItem('language', 'ru');
+            localStorage.setItem('theme', 'light');
+            document.documentElement.setAttribute('lang', 'ru');
+            document.documentElement.setAttribute('data-theme', 'light');
+            window.dispatchEvent(new CustomEvent('languageChange', { detail: 'ru' }));
+            window.dispatchEvent(new CustomEvent('themeChange', { detail: 'light' }));
+        }
     };
 
     const updateProfile = async (profileData) => {

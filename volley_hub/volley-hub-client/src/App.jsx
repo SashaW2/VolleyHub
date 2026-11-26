@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { CreatorModalProvider } from './context/CreatorModalContext';
+import { DialogProvider } from './context/DialogContext';
 import { NotificationStreamProvider } from './context/NotificationStreamContext';
 import { AdvertStreamProvider } from './context/AdvertStreamContext';
 import Layout from './components/layout/Layout/Layout';
@@ -87,15 +88,17 @@ function App() {
         <Router>
             <ThemeProvider>
                 <LanguageProvider>
-                    <AuthProvider>
-                        <NotificationStreamProvider>
-                            <AdvertStreamProvider>
-                                <CreatorModalProvider>
-                                    <AppRoutes />
-                                </CreatorModalProvider>
-                            </AdvertStreamProvider>
-                        </NotificationStreamProvider>
-                    </AuthProvider>
+                    <DialogProvider>
+                        <AuthProvider>
+                            <NotificationStreamProvider>
+                                <AdvertStreamProvider>
+                                    <CreatorModalProvider>
+                                        <AppRoutes />
+                                    </CreatorModalProvider>
+                                </AdvertStreamProvider>
+                            </NotificationStreamProvider>
+                        </AuthProvider>
+                    </DialogProvider>
                 </LanguageProvider>
             </ThemeProvider>
         </Router>

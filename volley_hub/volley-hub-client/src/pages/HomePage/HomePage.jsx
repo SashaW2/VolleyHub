@@ -7,6 +7,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useFilters } from '../../hooks/useFilters';
 import { useCreatorModal } from '../../context/CreatorModalContext';
 import { useAdvertStream } from '../../context/AdvertStreamContext';
+import { useDialog } from '../../context/DialogContext';
 import Button from '../../components/common/Button/Button';
 import Modal from '../../components/common/Modal/Modal';
 import AdvertCard from '../../components/AdvertCard/AdvertCard';
@@ -50,6 +51,7 @@ const HomePage = () => {
     const { filters, showFilters, setShowFilters, applyFilters } = useFilters();
     const { openCreatorModal } = useCreatorModal();
     const { lastEvent: advertsEvent } = useAdvertStream();
+    const { alertDialog, confirmDialog } = useDialog();
 
     const [activeTab, setActiveTab] = useState('all');
     const [adverts, setAdverts] = useState([]);
@@ -131,6 +133,12 @@ const HomePage = () => {
             localStorage.setItem('homePageActiveTab', activeTab);
         }
     }, [activeTab, isInitialized, isAuthenticated]);
+
+    useEffect(() => {
+        if (isAdminUser && activeTab !== 'all') {
+            setActiveTab('all');
+        }
+    }, [isAdminUser, activeTab]);
 
     const sortByDistance = async (advertsList, userAddress) => {
         if (!userAddress || advertsList.length === 0) return advertsList;
@@ -319,6 +327,9 @@ const HomePage = () => {
         if (eventId !== null && eventId === handledAdvertsEventRef.current) return;
         handledAdvertsEventRef.current = eventId;
 
+        const action = String(advertsEvent.action || '');
+        if (action.startsWith('user-') && action !== 'user-deleted') return;
+
         if (advertsReloadTimerRef.current) {
             clearTimeout(advertsReloadTimerRef.current);
         }
@@ -421,7 +432,7 @@ const HomePage = () => {
     const handleOpenMap = () => {
         if (mapBusy) return;
         if (currentFilters && currentFilters.useNearestLocations && currentFilters.userAddress) {
-            openMapWithFilters(currentFilters).catch((e) => alert(e.message || t('loadingError')));
+            openMapWithFilters(currentFilters).catch((e) => alertDialog(e.message || t('loadingError')));
             return;
         }
         setIsAddressModalOpen(true);
@@ -498,7 +509,7 @@ const HomePage = () => {
                 })
             );
         } catch (err) {
-            alert(err.message);
+            alertDialog(err.message);
         }
     };
 
@@ -517,7 +528,7 @@ const HomePage = () => {
                 })
             );
         } catch (err) {
-            alert(err.message);
+            alertDialog(err.message);
         }
     };
 
@@ -545,7 +556,7 @@ const HomePage = () => {
                 })
             );
         } catch (err) {
-            alert(err.message);
+            alertDialog(err.message);
         }
     };
 
@@ -572,18 +583,17 @@ const HomePage = () => {
                 })
             );
         } catch (err) {
-            alert(err.message);
+            alertDialog(err.message);
         }
     };
 
     const handleDelete = async (advertId) => {
-        if (window.confirm(t('confirmDelete'))) {
-            try {
-                await advertService.deleteAdvert(advertId);
-                await loadAdverts(currentFilters);
-            } catch (err) {
-                alert(err.message);
-            }
+        if (!(await confirmDialog(t('confirmDelete'), { danger: true, confirmText: t('delete') }))) return;
+        try {
+            await advertService.deleteAdvert(advertId);
+            await loadAdverts(currentFilters);
+        } catch (err) {
+            alertDialog(err.message);
         }
     };
 
@@ -661,8 +671,12 @@ const HomePage = () => {
 
     const tabs = [
         { id: 'all', label: t('allAdverts') },
-        { id: 'my', label: t('myAdverts') },
-        { id: 'participating', label: t('participating') }
+        ...(!isAdminUser
+            ? [
+                { id: 'my', label: t('myAdverts') },
+                { id: 'participating', label: t('participating') }
+            ]
+            : [])
     ];
 
     if (!isInitialized || currentFilters === null) {
@@ -694,17 +708,19 @@ const HomePage = () => {
             <div className={styles.tabsSection}>
                 <div className={styles.container}>
                     <div className={styles.tabsHeader}>
-                        <div className={styles.tabs}>
-                            {tabs.map(tab => (
-                                <button
-                                    key={tab.id}
-                                    className={`${styles.tab} ${activeTab === tab.id ? styles.activeTab : ''}`}
-                                    onClick={() => handleTabChange(tab.id)}
-                                >
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </div>
+                        {!isAdminUser && (
+                            <div className={styles.tabs}>
+                                {tabs.map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        className={`${styles.tab} ${activeTab === tab.id ? styles.activeTab : ''}`}
+                                        onClick={() => handleTabChange(tab.id)}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                         <div className={styles.headerActions}>
                             <Button variant="outline" size="small" icon={FaMapMarkedAlt} onClick={handleOpenMap} disabled={mapBusy}>
                                 {t('map')}

@@ -1,5 +1,6 @@
 const authService = require('../services/authService');
 const userRepository = require('../repositories/userRepository');
+const { notifyUsersChanged } = require('../utils/userEvents');
 
 class AuthController {
     async register(req, res) {
@@ -15,6 +16,8 @@ class AuthController {
             }
 
             const { user, token } = await authService.register(userData);
+
+            notifyUsersChanged('user-created', user.id);
 
             const responseUser = {
                 id: user.id,

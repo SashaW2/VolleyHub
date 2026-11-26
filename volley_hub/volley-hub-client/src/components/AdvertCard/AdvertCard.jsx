@@ -2,6 +2,7 @@ import React from 'react';
 import { FaMapMarkerAlt, FaCalendar, FaClock, FaUsers, FaVolleyballBall, FaEdit, FaTrash, FaUser } from 'react-icons/fa';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useDialog } from '../../context/DialogContext';
 import Button from '../common/Button/Button';
 import styles from './AdvertCard.module.css';
 import Tooltip from "../common/Tooltip/Tooltip";
@@ -9,6 +10,7 @@ import Tooltip from "../common/Tooltip/Tooltip";
 const AdvertCard = ({ advert, isCreator, isParticipating, isSubscribed, isAdmin, onSubscribe, onUnsubscribe, onSubscribeToWaiting, onUnsubscribeFromWaiting, onEdit, onDelete, onViewCreator, onClick }) => {
     const { t } = useLanguage();
     const { theme } = useTheme();
+    const { alertDialog } = useDialog();
 
     const levelColors = {
         'D1': '#10B981',
@@ -144,7 +146,7 @@ const AdvertCard = ({ advert, isCreator, isParticipating, isSubscribed, isAdmin,
         if (canEdit()) {
             onEdit();
         } else {
-            alert(t('editNotAllowed'));
+            alertDialog(t('editNotAllowed'));
         }
     };
 
@@ -153,7 +155,7 @@ const AdvertCard = ({ advert, isCreator, isParticipating, isSubscribed, isAdmin,
         if (canDelete()) {
             onDelete();
         } else {
-            alert(t('deleteNotAllowed'));
+            alertDialog(t('deleteNotAllowed'));
         }
     };
 
@@ -168,7 +170,7 @@ const AdvertCard = ({ advert, isCreator, isParticipating, isSubscribed, isAdmin,
             if (canUnsubscribe()) {
                 onUnsubscribe();
             } else {
-                alert(t('unsubscribeNotAllowed'));
+                alertDialog(t('unsubscribeNotAllowed'));
             }
         } else if (isSubscribed) {
             onUnsubscribeFromWaiting();

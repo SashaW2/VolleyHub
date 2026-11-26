@@ -35,10 +35,12 @@ class AuthService {
         }
     }
 
-    logout() {
+    logout({ redirect = true, redirectTo = '/' } = {}) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/';
+        if (redirect) {
+            window.location.href = redirectTo;
+        }
     }
 
     getCurrentUser() {

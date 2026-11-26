@@ -1,6 +1,9 @@
 const { Op } = require('sequelize');
+const sequelize = require('../config/database');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const AdvertParticipant = require('../models/AdvertParticipant');
+const AdvertSubscriber = require('../models/AdvertSubscriber');
 
 class UserRepository {
     async create(userData) {
@@ -44,7 +47,14 @@ class UserRepository {
     async delete(id) {
         const user = await User.findByPk(id);
         if (!user) return false;
-        await user.destroy();
+
+        await sequelize.transaction(async (transaction) => {
+            await Notification.destroy({ where: { userId: id }, transaction });
+            await AdvertParticipant.destroy({ where: { userId: id }, transaction });
+            await AdvertSubscriber.destroy({ where: { userId: id }, transaction });
+            await user.destroy({ transaction });
+        });
+
         return true;
     }
 

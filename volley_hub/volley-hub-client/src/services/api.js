@@ -25,7 +25,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && localStorage.getItem('token')) {
             const currentPath = window.location.pathname;
 
             if (currentPath !== '/login' && currentPath !== '/register') {

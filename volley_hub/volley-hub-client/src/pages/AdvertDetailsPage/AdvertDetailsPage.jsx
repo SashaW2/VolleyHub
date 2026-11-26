@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useCreatorModal } from '../../context/CreatorModalContext';
 import { useAdvertStream } from '../../context/AdvertStreamContext';
+import { useDialog } from '../../context/DialogContext';
 import Button from '../../components/common/Button/Button';
 import Modal from '../../components/common/Modal/Modal';
 import advertService from '../../services/advertService';
@@ -32,6 +33,7 @@ const AdvertDetailsPage = () => {
     const { theme } = useTheme();
     const { openCreatorModal } = useCreatorModal();
     const { lastEvent: advertsEvent } = useAdvertStream();
+    const { alertDialog, confirmDialog } = useDialog();
     const [advert, setAdvert] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -107,6 +109,28 @@ const AdvertDetailsPage = () => {
 
         if (advertsEvent.action === 'deleted') {
             navigate('/');
+            return;
+        }
+
+        if (advertsEvent.action === 'user-updated' || advertsEvent.action === 'user-deleted') {
+            const updatedUserId = advertsEvent.actorId;
+
+            if (advertsEvent.action === 'user-deleted' && advert && updatedUserId != null &&
+                String(advert.userId) === String(updatedUserId)) {
+                navigate('/');
+                return;
+            }
+
+            const isAffectedParticipant = updatedUserId == null ||
+                participants.some(p => String(p.id) === String(updatedUserId));
+
+            if (advertsEvent.action === 'user-deleted') {
+                loadAdvert({ silent: true });
+            }
+
+            if (showParticipants && isAffectedParticipant) {
+                reloadParticipants();
+            }
             return;
         }
 
@@ -353,17 +377,17 @@ const AdvertDetailsPage = () => {
         if (canEdit()) {
             navigate(`/add-advert?edit=${advert.id}`);
         } else {
-            alert(t('editNotAllowed'));
+            alertDialog(t('editNotAllowed'));
         }
     };
 
-    const handleDeleteClick = () => {
+    const handleDeleteClick = async () => {
         if (canDelete()) {
-            if (window.confirm(t('confirmDelete'))) {
+            if (await confirmDialog(t('confirmDelete'), { danger: true, confirmText: t('delete') })) {
                 handleDelete();
             }
         } else {
-            alert(t('deleteNotAllowed'));
+            alertDialog(t('deleteNotAllowed'));
         }
     };
 
@@ -410,7 +434,7 @@ const AdvertDetailsPage = () => {
                         participantsCount: prev.participantsCount - 1
                     }));
                 } else {
-                    alert(t('unsubscribeNotAllowed'));
+                    alertDialog(t('unsubscribeNotAllowed'));
                     return;
                 }
             } else if (isCurrentlySubscribed) {
@@ -435,7 +459,7 @@ const AdvertDetailsPage = () => {
                 }));
             }
         } catch (err) {
-            alert(err.message);
+            alertDialog(err.message);
         }
     };
 
@@ -468,7 +492,7 @@ const AdvertDetailsPage = () => {
             await advertService.deleteAdvert(id);
             navigate('/');
         } catch (err) {
-            alert(err.message);
+            alertDialog(err.message);
         }
     };
 
@@ -528,7 +552,7 @@ const AdvertDetailsPage = () => {
     const isParticipating = advert.isParticipating === true;
     const isSubscribed = advert.isSubscribed === true;
     const showCreatorButton = isAdmin;
-    const showSubscribeSection = !isAdmin && !isCreator;
+    const showSubscribeSection = !isAdmin;
 
     const getButtonText = () => {
         if (isParticipating) return t('unsubscribe');

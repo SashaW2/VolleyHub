@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCreatorModal } from '../../../context/CreatorModalContext';
 import { useAuth } from '../../../context/AuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useDialog } from '../../../context/DialogContext';
 import Button from '../../common/Button/Button';
 import userService from '../../../services/userService';
 import notificationService from '../../../services/notificationService';
@@ -10,8 +11,18 @@ import styles from './CreatorModal.module.css';
 const CreatorModal = () => {
     const { user } = useAuth();
     const { t } = useLanguage();
+    const { confirmDialog } = useDialog();
     const { selectedCreator, showModal, closeCreatorModal, updateCreator } = useCreatorModal();
     const [notificationText, setNotificationText] = useState('');
+    const [notificationError, setNotificationError] = useState('');
+    const [blockError, setBlockError] = useState('');
+
+    useEffect(() => {
+        if (!showModal) {
+            setNotificationError('');
+            setBlockError('');
+        }
+    }, [showModal]);
 
     const isAdminUser = user?.role === 'admin' || user?.isAdmin === true || user?.roleId === 2;
 
@@ -26,31 +37,39 @@ const CreatorModal = () => {
 
     const handleBlockUser = async () => {
         if (!selectedCreator) return;
-        if (window.confirm(`Вы уверены, что хотите ${selectedCreator.isBlocked ? 'разблокировать' : 'заблокировать'} пользователя ${selectedCreator.name}?`)) {
-            try {
-                if (selectedCreator.isBlocked) {
-                    await userService.unblockUser(selectedCreator.id);
-                } else {
-                    await userService.blockUser(selectedCreator.id);
-                }
-                const updatedResponse = await userService.getUserById(selectedCreator.id);
-                updateCreator(updatedResponse.user);
-                alert(`Пользователь ${selectedCreator.isBlocked ? 'разблокирован' : 'заблокирован'}`);
-            } catch (err) {
-                alert(err.message);
+        const willBlock = !selectedCreator.isBlocked;
+        const confirmed = await confirmDialog(
+            willBlock ? t('blockUserConfirm') : t('unblockUserConfirm'),
+            { danger: willBlock, confirmText: willBlock ? t('block') : t('unblock') }
+        );
+        if (!confirmed) return;
+        setBlockError('');
+        try {
+            if (selectedCreator.isBlocked) {
+                await userService.unblockUser(selectedCreator.id);
+            } else {
+                await userService.blockUser(selectedCreator.id);
             }
+            const updatedResponse = await userService.getUserById(selectedCreator.id);
+            updateCreator(updatedResponse.user);
+        } catch (err) {
+            setBlockError(err.message || 'Не удалось изменить статус пользователя');
         }
     };
 
     const handleSendNotification = async () => {
-        if (!selectedCreator || !notificationText.trim()) return;
+        if (!selectedCreator) return;
+        if (!notificationText.trim()) {
+            setNotificationError('Введите текст уведомления');
+            return;
+        }
+        setNotificationError('');
         try {
             await notificationService.sendToUser(selectedCreator.id, notificationText);
             setNotificationText('');
             closeCreatorModal();
-            alert('Уведомление отправлено');
         } catch (err) {
-            alert(err.message);
+            setNotificationError(err.message || 'Ошибка отправки');
         }
     };
 
@@ -78,9 +97,18 @@ const CreatorModal = () => {
                                 rows="3"
                                 placeholder="Введите текст уведомления..."
                                 value={notificationText}
-                                onChange={(e) => setNotificationText(e.target.value)}
+                                onChange={(e) => {
+                                    setNotificationText(e.target.value);
+                                    setNotificationError('');
+                                }}
                             />
+                            {notificationError && (
+                                <div className={styles.notificationError}>{notificationError}</div>
+                            )}
                         </div>
+                        {blockError && (
+                            <div className={styles.notificationError}>{blockError}</div>
+                        )}
                         <div className={styles.modalActions}>
                             <Button onClick={handleSendNotification}>Отправить уведомление</Button>
                             <Button

@@ -112,7 +112,7 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
         if (!advertsEvent) return;
 
         const action = advertsEvent.action;
-        if (action !== 'created' && action !== 'updated' && action !== 'deleted') return;
+        if (action !== 'created' && action !== 'updated' && action !== 'deleted' && action !== 'user-deleted') return;
 
         const eventId = advertsEvent._receivedAt ?? null;
         if (eventId !== null && eventId === handledAdvertsEventRef.current) return;
@@ -134,6 +134,15 @@ const FilterSection = ({ onApplyFilters, initialFilters = {}, onClear }) => {
             }
         };
     }, [advertsEvent]);
+
+    useEffect(() => {
+        if (!showSuggestions) return;
+        const query = (filters.street || '').trim().toLowerCase();
+        const matches = query
+            ? allStreets.filter(street => street.toLowerCase().includes(query))
+            : allStreets;
+        setStreetSuggestions(matches.slice(0, 15));
+    }, [allStreets, showSuggestions, filters.street]);
 
     const filterStreets = (query) => {
         if (!query.trim()) {

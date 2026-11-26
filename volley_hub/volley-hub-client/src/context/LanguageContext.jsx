@@ -150,7 +150,7 @@ export const LanguageProvider = ({ children }) => {
 
             // About
             aboutTitle: 'О приложении',
-            aboutDescription: 'Приложение разработано в рамках курсового проекта по ПСКП',
+            aboutDescription: 'Приложение разработано в рамках дипломного проекта',
             developer: 'Разработчик:',
             developerName: 'Билый А.С.',
             version: 'Версия приложения 1.0',
@@ -183,6 +183,12 @@ export const LanguageProvider = ({ children }) => {
             peopleCount: 'Количество участников',
             descriptionPlaceholder: 'Описание (необязательно)',
             cancel: 'Отмена',
+            dialogOk: 'ОК',
+            dialogConfirmTitle: 'Подтверждение',
+            dialogAlertTitle: 'Уведомление',
+            blockUserConfirm: 'Вы уверены, что хотите заблокировать этого пользователя?',
+            unblockUserConfirm: 'Вы уверены, что хотите разблокировать этого пользователя?',
+            accountBlockedMessage: 'Ваш аккаунт был заблокирован администратором.',
             save: 'Сохранить',
             create: 'Создать',
             currentParticipants: 'Текущее количество записанных участников',
@@ -396,7 +402,7 @@ export const LanguageProvider = ({ children }) => {
 
             // About
             aboutTitle: 'About the app',
-            aboutDescription: 'The application was developed as part of a course project on PSCP',
+            aboutDescription: 'The application was developed as part of a diploma project',
             developer: 'Developer:',
             developerName: 'Bilyi A.S.',
             version: 'Application version 1.0',
@@ -429,6 +435,12 @@ export const LanguageProvider = ({ children }) => {
             peopleCount: 'Number of participants',
             descriptionPlaceholder: 'Description (optional)',
             cancel: 'Cancel',
+            dialogOk: 'OK',
+            dialogConfirmTitle: 'Confirmation',
+            dialogAlertTitle: 'Notification',
+            blockUserConfirm: 'Are you sure you want to block this user?',
+            unblockUserConfirm: 'Are you sure you want to unblock this user?',
+            accountBlockedMessage: 'Your account has been blocked by an administrator.',
             save: 'Save',
             create: 'Create',
             currentParticipants: 'Current number of registered participants',

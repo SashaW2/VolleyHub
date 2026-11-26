@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
+import { useLanguage } from './LanguageContext';
 
 const NotificationStreamContext = createContext(null);
 
@@ -12,10 +13,13 @@ export const useNotificationStream = () => {
 };
 
 export const NotificationStreamProvider = ({ children }) => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, logout } = useAuth();
+    const { t } = useLanguage();
     const [unreadCount, setUnreadCount] = useState(0);
     const [lastEvent, setLastEvent] = useState(null);
     const esRef = useRef(null);
+    const blockedHandlersRef = useRef({});
+    blockedHandlersRef.current = { t, logout };
 
     const isAdmin = user?.role === 'admin' || user?.isAdmin === true || user?.roleId === 2;
 
@@ -52,6 +56,26 @@ export const NotificationStreamProvider = ({ children }) => {
 
         const es = new EventSource(`/api/notifications/stream?token=${encodeURIComponent(token)}`);
         esRef.current = es;
+
+        es.addEventListener('blocked', (event) => {
+            let serverMessage = '';
+            try {
+                serverMessage = JSON.parse(event.data)?.message || '';
+            } catch (e) {
+                serverMessage = '';
+            }
+
+            const { t: translate, logout: doLogout } = blockedHandlersRef.current;
+            es.close();
+            esRef.current = null;
+            const message = translate('accountBlockedMessage') || serverMessage;
+            const title = translate('dialogAlertTitle');
+            try {
+                sessionStorage.setItem('pendingAlertDialog', JSON.stringify({ message, title }));
+            } catch (e) {
+            }
+            doLogout();
+        });
 
         es.addEventListener('notification', (event) => {
             try {

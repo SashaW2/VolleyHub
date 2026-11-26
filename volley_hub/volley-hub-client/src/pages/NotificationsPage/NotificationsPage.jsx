@@ -4,11 +4,13 @@ import NotificationItem from '../../components/NotificationItem/NotificationItem
 import notificationService from '../../services/notificationService';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useDialog } from '../../context/DialogContext';
 import styles from './NotificationsPage.module.css';
 
 const NotificationsPage = () => {
     const { t } = useLanguage();
     const { theme } = useTheme();
+    const { alertDialog, confirmDialog } = useDialog();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [deletingAll, setDeletingAll] = useState(false);
@@ -42,7 +44,7 @@ const NotificationsPage = () => {
                 window.dispatchEvent(new CustomEvent('notificationsChanged'));
             }
         } catch (error) {
-            alert(error.message);
+            alertDialog(error.message);
         }
     };
 
@@ -56,7 +58,7 @@ const NotificationsPage = () => {
             ));
             window.dispatchEvent(new CustomEvent('notificationsChanged'));
         } catch (error) {
-            alert(error.message);
+            alertDialog(error.message);
         }
     };
 
@@ -69,20 +71,20 @@ const NotificationsPage = () => {
                 window.dispatchEvent(new CustomEvent('notificationsChanged'));
             }
         } catch (error) {
-            alert(error.message);
+            alertDialog(error.message);
         }
     };
 
     const handleDeleteAll = async () => {
         if (deletingAll) return;
-        if (!window.confirm(t('confirmDeleteAllNotifications'))) return;
+        if (!(await confirmDialog(t('confirmDeleteAllNotifications'), { danger: true, confirmText: t('delete') }))) return;
         try {
             setDeletingAll(true);
             await notificationService.deleteAllNotifications();
             setNotifications([]);
             window.dispatchEvent(new CustomEvent('notificationsChanged'));
         } catch (error) {
-            alert(error.message);
+            alertDialog(error.message);
         } finally {
             setDeletingAll(false);
         }

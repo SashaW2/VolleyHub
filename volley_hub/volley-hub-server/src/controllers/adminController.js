@@ -2,6 +2,8 @@ const userRepository = require('../repositories/userRepository');
 const advertRepository = require('../repositories/advertRepository');
 const notificationRepository = require('../repositories/notificationRepository');
 const notificationService = require('../services/notificationService');
+const { notifyUsersChanged } = require('../utils/userEvents');
+const sseHub = require('../utils/sseHub');
 
 class AdminController {
     async getAllUsers(req, res) {
@@ -89,6 +91,8 @@ class AdminController {
             }
 
             await userRepository.update(id, { isBlocked: true });
+            notifyUsersChanged('user-updated', id);
+            sseHub.send(id, 'blocked', { message: 'Ваш аккаунт был заблокирован администратором' });
             res.json({ success: true, message: 'Пользователь заблокирован' });
         } catch (error) {
             console.error('Error in blockUser:', error);
@@ -111,6 +115,7 @@ class AdminController {
             }
 
             await userRepository.update(id, { isBlocked: false });
+            notifyUsersChanged('user-updated', id);
             res.json({ success: true, message: 'Пользователь разблокирован' });
         } catch (error) {
             console.error('Error in unblockUser:', error);

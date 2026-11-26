@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useDialog } from '../../context/DialogContext';
 import Button from '../../components/common/Button/Button';
 import Input from '../../components/common/Input/Input';
 import PhoneInput from '../../components/common/PhoneInput/PhoneInput';
@@ -14,6 +15,7 @@ const ProfilePage = () => {
     const { user, updateProfile, changePassword, deleteAccount, logout } = useAuth();
     const { t, changeLanguage, language } = useLanguage();
     const { theme, changeTheme } = useTheme();
+    const { confirmDialog } = useDialog();
 
     const getLevelFromNumber = (levelNum) => {
         if (levelNum === null || levelNum === undefined) return 'D2';
@@ -323,8 +325,11 @@ const ProfilePage = () => {
     };
 
     const handleDeleteAccount = async () => {
-        if (window.confirm(t('confirmDeleteAccount'))) {
+        if (!(await confirmDialog(t('confirmDeleteAccount'), { danger: true, confirmText: t('delete') }))) return;
+        try {
             await deleteAccount();
+        } catch (err) {
+            setMessage({ text: err.message || t('updateError'), type: 'error' });
         }
     };
 
@@ -593,7 +598,7 @@ const ProfilePage = () => {
                         </div>
 
                         <div className={styles.actions}>
-                            <Button variant="primary" onClick={logout}>{t('changeUser')}</Button>
+                            <Button variant="primary" onClick={() => logout({ redirectTo: '/login' })}>{t('changeUser')}</Button>
                             <Button variant="danger" onClick={handleDeleteAccount}>{t('deleteAccount')}</Button>
                         </div>
                     </div>

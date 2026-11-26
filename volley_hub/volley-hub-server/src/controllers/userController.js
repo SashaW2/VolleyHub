@@ -1,6 +1,8 @@
 const userRepository = require('../repositories/userRepository');
 const authService = require('../services/authService');
 const telegramService = require('../services/telegramService');
+const { notifyUsersChanged } = require('../utils/userEvents');
+const sseHub = require('../utils/sseHub');
 const bcrypt = require('bcryptjs');
 
 class UserController {
@@ -73,6 +75,8 @@ class UserController {
             const reverseLevelMap = { 1: 'D1', 2: 'D2', 3: 'D3', 4: 'D4', 5: 'D4Plus' };
             userWithoutPassword.gameLevel = reverseLevelMap[userWithoutPassword.gameLevel] || 'D2';
 
+            notifyUsersChanged('user-updated', req.user.id);
+
             res.json({ success: true, user: userWithoutPassword });
         } catch (error) {
             res.status(400).json({ success: false, message: error.message });
@@ -112,6 +116,7 @@ class UserController {
             }
 
             await userRepository.delete(req.user.id);
+            notifyUsersChanged('user-deleted', req.user.id);
             res.json({ success: true, message: 'Аккаунт удален' });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
@@ -124,6 +129,8 @@ class UserController {
             if (!user) {
                 return res.status(404).json({ success: false, message: 'Пользователь не найден' });
             }
+            notifyUsersChanged('user-updated', req.params.id);
+            sseHub.send(req.params.id, 'blocked', { message: 'Ваш аккаунт был заблокирован администратором' });
             res.json({ success: true, message: 'Пользователь заблокирован' });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
@@ -136,6 +143,7 @@ class UserController {
             if (!user) {
                 return res.status(404).json({ success: false, message: 'Пользователь не найден' });
             }
+            notifyUsersChanged('user-updated', req.params.id);
             res.json({ success: true, message: 'Пользователь разблокирован' });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });

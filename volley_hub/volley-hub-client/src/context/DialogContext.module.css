@@ -1,0 +1,16 @@
+.message {
+    margin: 0 0 1.5rem;
+    line-height: 1.5;
+    color: #475569;
+    white-space: pre-line;
+}
+
+[data-theme="dark"] .message {
+    color: #A0A8C8;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}

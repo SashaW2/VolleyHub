@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaUser, FaEnvelope, FaPhone, FaVolleyballBall, FaLock, FaUnlock } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import { useAdvertStream } from '../../context/AdvertStreamContext';
+import { useDialog } from '../../context/DialogContext';
+import { useLanguage } from '../../context/LanguageContext';
 import userService from '../../services/userService';
 import notificationService from '../../services/notificationService';
 import Button from '../../components/common/Button/Button';
@@ -9,6 +12,9 @@ import styles from './AdminUsersPage.module.css';
 
 const AdminUsersPage = () => {
     const { user: currentUser } = useAuth();
+    const { lastEvent: advertsEvent } = useAdvertStream();
+    const { alertDialog, confirmDialog } = useDialog();
+    const { t } = useLanguage();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -21,6 +27,8 @@ const AdminUsersPage = () => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [allEmails, setAllEmails] = useState([]);
     const wrapperRef = useRef(null);
+    const handledUsersEventRef = useRef(null);
+    const usersReloadTimerRef = useRef(null);
 
     const levelMap = {
         1: 'D1',
@@ -34,6 +42,32 @@ const AdminUsersPage = () => {
     useEffect(() => {
         loadUsers();
     }, []);
+
+    useEffect(() => {
+        if (!advertsEvent) return;
+
+        const eventId = advertsEvent._receivedAt ?? null;
+        if (eventId !== null && eventId === handledUsersEventRef.current) return;
+        handledUsersEventRef.current = eventId;
+
+        if (!['user-created', 'user-updated', 'user-deleted'].includes(advertsEvent.action)) return;
+
+        if (usersReloadTimerRef.current) {
+            clearTimeout(usersReloadTimerRef.current);
+        }
+
+        usersReloadTimerRef.current = setTimeout(() => {
+            usersReloadTimerRef.current = null;
+            loadUsers();
+        }, 300);
+
+        return () => {
+            if (usersReloadTimerRef.current) {
+                clearTimeout(usersReloadTimerRef.current);
+                usersReloadTimerRef.current = null;
+            }
+        };
+    }, [advertsEvent]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -50,18 +84,32 @@ const AdminUsersPage = () => {
     const loadUsers = async () => {
         try {
             const response = await userService.getAllUsers();
-            const usersList = response.users || [];
+            const usersList = [...(response.users || [])]
+                .sort((a, b) => b.id - a.id);
             setUsers(usersList);
+            setSelectedUser(prev => {
+                if (!prev) return prev;
+                return usersList.find(u => u.id === prev.id) || null;
+            });
 
             const uniqueEmails = [...new Set(usersList.map(u => u.email).filter(Boolean))];
-            uniqueEmails.sort();
+            uniqueEmails.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
             setAllEmails(uniqueEmails);
         } catch (error) {
             console.error('Error loading users:', error);
-            alert(error.message);
+            alertDialog(error.message);
         }
         finally { setLoading(false); }
     };
+
+    useEffect(() => {
+        if (!showSuggestions) return;
+        const query = searchEmail.trim().toLowerCase();
+        const matches = query
+            ? allEmails.filter(email => email.toLowerCase().includes(query))
+            : allEmails;
+        setEmailSuggestions(matches.slice(0, 15));
+    }, [allEmails, showSuggestions, searchEmail]);
 
     const filterEmails = (query) => {
         if (!query.trim()) {
@@ -77,6 +125,7 @@ const AdminUsersPage = () => {
     const handleEmailChange = (value) => {
         setSearchEmail(value);
         filterEmails(value);
+        setShowSuggestions(true);
     };
 
     const handleEmailFocus = () => {
@@ -90,6 +139,11 @@ const AdminUsersPage = () => {
     };
 
     const handleBlockUser = async (userId, isBlocked) => {
+        const confirmed = await confirmDialog(
+            isBlocked ? t('unblockUserConfirm') : t('blockUserConfirm'),
+            { danger: !isBlocked, confirmText: isBlocked ? t('unblock') : t('block') }
+        );
+        if (!confirmed) return;
         try {
             if (isBlocked) {
                 await userService.unblockUser(userId);
@@ -98,7 +152,7 @@ const AdminUsersPage = () => {
             }
             await loadUsers();
         } catch (error) {
-            alert(error.message);
+            alertDialog(error.message);
         }
     };
 
@@ -116,7 +170,10 @@ const AdminUsersPage = () => {
     };
 
     const handleSendNotification = async () => {
-        if (!notificationText.trim()) return;
+        if (!notificationText.trim()) {
+            setSendStatus({ type: 'error', text: 'Введите текст уведомления' });
+            return;
+        }
         try {
             await notificationService.sendToUser(selectedUser.id, notificationText);
             setNotificationText('');
@@ -130,8 +187,9 @@ const AdminUsersPage = () => {
         return levelMap[level] || level || 'Не указан';
     };
 
-    const filteredUsers = searchEmail.trim()
-        ? users.filter(u => u.email && u.email.toLowerCase() === searchEmail.toLowerCase())
+    const emailQuery = searchEmail.trim().toLowerCase();
+    const filteredUsers = emailQuery
+        ? users.filter(u => u.email && u.email.toLowerCase().includes(emailQuery))
         : users;
 
     if (loading) return <div className={styles.loading}>Загрузка...</div>;
@@ -198,7 +256,7 @@ const AdminUsersPage = () => {
                     <div className={styles.emptyState}>Ничего не найдено</div>
                 )}
             </div>
-            {showModal && (
+            {showModal && selectedUser && (
                 <div className={styles.modal} onClick={handleCloseModal}>
                     <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
                         <h3>Отправить уведомление пользователю {selectedUser?.name}</h3>
